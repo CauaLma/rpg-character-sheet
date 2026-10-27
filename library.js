@@ -48,7 +48,7 @@ function characterCard(c,db,index){
    '" aria-pressed="false" title="'+(stand?'Passar o mouse ou clicar para ver o Stand':'Enviar imagem do Stand')+'">'+label+'</button>'+
    '<details class="card-menu"><summary title="Opções de '+esc(c.name)+'" aria-label="Opções de '+esc(c.name)+'">⋯</summary>'+
    '<div class="card-actions-menu">'+
-   '<button type="button" data-action="upload-portrait">↑ Foto do personagem</button>'+   '<button type="button" data-action="upload-stand">✕ '+(stand?'Trocar imagem do Stand':'Adicionar Stand')+'</button>'+
+   '<button type="button" data-action="upload-portrait">↻ Reenviar PNG original</button>'+   '<button type="button" data-action="upload-stand">✕ '+(stand?'Trocar imagem do Stand':'Adicionar Stand')+'</button>'+
    (stand?'<button type="button" data-action="remove-stand">− Remover Stand</button>':'')+
    '<button type="button" data-action="copy">⧉ Fazer cópia</button>'+
    '<button type="button" data-action="move">↗ Mover de grupo</button>'+
@@ -147,7 +147,7 @@ artInput.addEventListener('change',()=>{
      else S.setPortrait(target.id,reader.result);
      draw();
      notify(target.kind==='stand'?'Stand salvo sem alterar a imagem.':
-       'PNG original salvo sem recorte ou alteração.');
+       'Imagem original substituída. Transparência preservada.');
    }catch(err){
      console.error(err);
      notify('Imagem grande demais para o armazenamento local. Use um arquivo menor.');

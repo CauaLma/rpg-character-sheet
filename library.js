@@ -35,22 +35,30 @@ function groupCard(g,current){
 }
 function characterCard(c,db,index){
  const portrait=safePortrait(c.portrait);
- const portraitPart=portrait?'<img loading="lazy" alt="Retrato de '+esc(c.name)+'" src="'+esc(portrait)+'">':
- '<div class="no-portrait"><span class="monogram">'+esc(initials(c.name))+'</span><span class="monogram-ornament">❧</span></div>';
- return '<article class="character-card" data-id="'+esc(c.id)+'" style="animation-delay:'+Math.min(index*45,450)+'ms">'+
- '<button class="character-image" type="button" data-action="open" aria-label="Abrir ficha de '+esc(c.name)+'">'+portraitPart+
- '<span class="open-hint">✦ ABRIR FICHA ✦</span></button>'+
- '<i class="frame-corner tl"></i><i class="frame-corner tr"></i>'+
- '<i class="frame-corner bl"></i><i class="frame-corner br"></i>'+
- '<details class="card-menu"><summary aria-label="Mais opções para '+esc(c.name)+'" title="Opções">⋯</summary>'+
- '<div class="card-actions-menu">'+
- '<button type="button" data-action="copy">✧ Fazer uma cópia</button>'+
- '<button type="button" data-action="move">↗ Mover para grupo</button>'+
- '<button type="button" data-action="rename">✎ Renomear</button>'+
- '<button type="button" class="danger" data-action="delete">× Excluir ficha</button></div></details>'+
- '<div class="card-info"><button type="button" class="card-name" data-action="open" title="Abrir ficha">'+esc(c.name)+'</button>'+
- '<span class="card-group">'+esc(groupName(db,c.groupId))+'</span></div></article>';
+ const stand=safePortrait(c.standPortrait);
+ const main=portrait?'<img class="fighter-main" loading="lazy" src="'+esc(portrait)+'" alt="Arte de '+esc(c.name)+'">':
+   '<div class="no-portrait"><span class="ghost">'+esc(initials(c.name))+'</span></div>';
+ const back=stand?'<img class="fighter-stand" src="'+esc(stand)+'" alt="Stand de '+esc(c.name)+'" loading="lazy">':'';
+ const label=stand?'STAND':'＋ STAND';
+ return '<article class="character-card" data-id="'+esc(c.id)+'" style="animation-delay:'+Math.min(index*28,250)+'ms">'+
+   '<div class="fighter-stage">'+back+
+   '<button type="button" class="main-art" data-action="open" aria-label="Abrir ficha de '+esc(c.name)+'">'+main+'</button></div>'+
+   '<i class="frame-corner tl"></i><i class="frame-corner tr"></i><i class="frame-corner bl"></i><i class="frame-corner br"></i>'+
+   '<button type="button" class="stand-tab '+(stand?'':'add')+'" data-action="'+(stand?'stand-preview':'upload-stand')+
+   '" aria-pressed="false" title="'+(stand?'Passar o mouse ou clicar para ver o Stand':'Enviar imagem do Stand')+'">'+label+'</button>'+
+   '<details class="card-menu"><summary title="Opções de '+esc(c.name)+'" aria-label="Opções de '+esc(c.name)+'">⋯</summary>'+
+   '<div class="card-actions-menu">'+
+   '<button type="button" data-action="upload-portrait">↑ Foto do personagem</button>'+
+   '<button type="button" data-action="upload-stand">✕ '+(stand?'Trocar imagem do Stand':'Adicionar Stand')+'</button>'+
+   (stand?'<button type="button" data-action="remove-stand">− Remover Stand</button>':'')+
+   '<button type="button" data-action="copy">⧉ Fazer cópia</button>'+
+   '<button type="button" data-action="move">↗ Mover de grupo</button>'+
+   '<button type="button" data-action="rename">✎ Renomear</button>'+
+   '<button type="button" class="danger" data-action="delete">✕ Excluir ficha</button></div></details>'+
+   '<div class="card-info"><button class="card-name" type="button" data-action="open" title="Abrir ficha">'+esc(c.name)+'</button>'+
+   '<span class="card-group">'+esc(groupName(db,c.groupId))+'</span></div></article>';
 }
+
 function draw(){
  const db=S.read();
  if(filter!=='all'&&filter!=='ungrouped'&&!getGroup(db,filter))filter='all';
@@ -65,7 +73,7 @@ function draw(){
  $('visibleCount').textContent=arr.length;
  const showCreate=!query;
  let markup=arr.map((c,i)=>characterCard(c,db,i)).join('');
- if(showCreate)markup+='<button type="button" class="create-card" id="newCharacterCard">'+
+ if(showCreate && arr.length<7)markup+='<button type="button" class="create-card" id="newCharacterCard">'+
  '<span class="create-symbol">+</span><strong>Novo personagem</strong><small>Uma aventura começa aqui</small></button>';
  $('characterGrid').innerHTML=markup;
  $('emptyState').hidden=arr.length!==0 || showCreate;
@@ -115,9 +123,53 @@ function openTransfer(id,mode){
  $('transferConfirm').innerHTML=mode==='copy'?'Criar cópia <span>→</span>':'Mover ficha <span>→</span>';
  $('transferDialog').showModal();
 }
+let uploadTarget=null;
+const artInput=document.createElement('input');
+artInput.type='file';artInput.accept='image/png,image/jpeg,image/webp,image/gif';artInput.hidden=true;
+document.body.appendChild(artInput);
+function requestArt(id,kind){
+ uploadTarget={id,kind};
+ artInput.value='';artInput.click();
+}
+artInput.addEventListener('change',()=>{
+ const file=artInput.files&&artInput.files[0], target=uploadTarget;
+ if(!file||!target)return;
+ if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){notify('Escolha PNG, JPEG, WebP ou GIF.');return;}
+ const img=new Image(),url=URL.createObjectURL(file);
+ img.onload=()=>{
+   URL.revokeObjectURL(url);
+   const canvas=document.createElement('canvas');
+   const scale=Math.min(1,950/Math.max(img.naturalWidth,img.naturalHeight));
+   canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+   canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+   const ctx=canvas.getContext('2d');
+   ctx.drawImage(img,0,0,canvas.width,canvas.height);
+   // WebP preserva transparencia de PNG, necessario para personagens e stands.
+   const data=canvas.toDataURL('image/webp',.77);
+   try{
+    if(target.kind==='stand')S.setStandPortrait(target.id,data);
+    else S.setPortrait(target.id,data);
+    draw();notify(target.kind==='stand'?'Stand salvo! Passe o mouse na aba vermelha.':'Arte de corpo inteiro salva.');
+   }catch(err){
+    console.error(err);
+    notify('Espaço do navegador insuficiente. Exporte backup ou use imagem menor.');
+   }
+ };
+ img.onerror=()=>{URL.revokeObjectURL(url);notify('Não foi possível abrir a imagem.');};
+ img.src=url;
+});
 function cardAction(action,id){
  const c=S.get(id);if(!c)return notify('Personagem não encontrado.');
  if(action==='open'){openSheet(c);return;}
+ if(action==='upload-portrait'){requestArt(id,'portrait');return;}
+ if(action==='upload-stand'){requestArt(id,'stand');return;}
+ if(action==='remove-stand'){
+   if(confirm('Remover o Stand de '+c.name+'? A ficha e o retrato permanecem.')){
+    try{S.setStandPortrait(id,'');draw();notify('Stand removido.');}
+    catch(err){notify('Erro ao remover Stand.');}
+   }
+   return;
+ }
  if(action==='copy'||action==='move'){openTransfer(id,action);return;}
  if(action==='rename'){
   const name=prompt('Renomear personagem:',c.name);
@@ -157,10 +209,36 @@ document.querySelector('.groups').addEventListener('click',e=>{
 });
 $('characterGrid').addEventListener('click',e=>{
  const create=e.target.closest('#newCharacterCard');if(create){openCreate();return;}
+ const stand=e.target.closest('[data-action="stand-preview"]');
+ if(stand){
+   const card=stand.closest('.character-card');
+   if(card){
+    const newPinned=card.dataset.standPinned!=='true';
+    card.dataset.standPinned=String(newPinned);
+    card.classList.toggle('is-stand-front',newPinned);
+    stand.setAttribute('aria-pressed',String(newPinned));
+    stand.textContent=newPinned?'PERSONAGEM':'STAND';
+   }
+   return;
+ }
  const btn=e.target.closest('button[data-action]');if(!btn)return;
  const card=btn.closest('[data-id]');if(card)cardAction(btn.dataset.action,card.dataset.id);
 });
 $('emptyCreateBtn').addEventListener('click',openCreate);
+$('newCharacterBtn')?.addEventListener('click',openCreate);
+$('characterGrid').addEventListener('pointerover',e=>{
+ if(e.pointerType!=='mouse')return;
+ const stand=e.target.closest('[data-action="stand-preview"]');
+ if(stand){stand.closest('.character-card')?.classList.add('is-stand-front');}
+});
+$('characterGrid').addEventListener('pointerout',e=>{
+ if(e.pointerType!=='mouse')return;
+ const stand=e.target.closest('[data-action="stand-preview"]');
+ if(stand){
+  const card=stand.closest('.character-card');
+  if(card && card.dataset.standPinned!=='true')card.classList.remove('is-stand-front');
+ }
+});
 $('searchInput').addEventListener('input',e=>{query=e.target.value.trim();draw();});
 $('createForm').addEventListener('submit',e=>{
  e.preventDefault();

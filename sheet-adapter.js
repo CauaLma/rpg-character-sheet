@@ -17,36 +17,24 @@
     'border:1px solid #425743;letter-spacing:.13em;font-weight:900;font-size:10px;cursor:pointer';
   button.addEventListener('click',()=>input.click());
   input.addEventListener('change',()=>{
-    const file=input.files&&input.files[0];if(!file)return;
-    if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){
-      alert('Escolha uma imagem PNG, JPG, WEBP ou GIF.');return;
-    }
-    const r=new FileReader();
-    r.onload=()=>{
-      const img=new Image();
-      img.onload=()=>{
-        const canvas=document.createElement('canvas');
-        const size=950,scale=Math.min(1,size/Math.max(img.width,img.height));
-        canvas.width=Math.max(1,Math.round(img.width*scale));
-        canvas.height=Math.max(1,Math.round(img.height*scale));
-        const ctx=canvas.getContext('2d');
-        ctx.drawImage(img,0,0,canvas.width,canvas.height);
-        const data=canvas.toDataURL('image/webp',.86);
-        const cleaned=window.KnaveBackground?window.KnaveBackground.clean(data):Promise.resolve(data);
-        cleaned.then(output=>{
-          try{
-            S.setPortrait(id,output);
-            const view=document.getElementById('fotoPreview');
-            if(view){view.src=output;view.style.display='block';}
-            document.getElementById('dropZone')?.classList.add('has-image');
-          }catch(e){alert('Não foi possível salvar o retrato. Exporte um backup ou tente uma imagem menor.');}
-        });
-      };
-      img.onerror=()=>alert('Não foi possível ler a imagem.');
-      img.src=r.result;
-    };
-    r.readAsDataURL(file);
-  });
+ const file=input.files&&input.files[0];if(!file)return;
+ if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){
+   alert('Escolha PNG, JPG, WEBP ou GIF.');return;
+ }
+ const reader=new FileReader();
+ reader.onload=()=>{
+   const original=reader.result;
+   if(typeof original!=='string')return;
+   try{
+     S.setPortrait(id,original);
+     const view=document.getElementById('fotoPreview');
+     if(view){view.src=original;view.style.display='block';}
+     document.getElementById('dropZone')?.classList.add('has-image');
+   }catch(err){alert('Imagem grande demais para salvar localmente. Escolha um arquivo menor.');}
+ };
+ reader.onerror=()=>alert('Não foi possível ler o arquivo.');
+ reader.readAsDataURL(file);
+});
   const standInput=document.createElement('input');
   standInput.type='file';standInput.accept='image/png,image/jpeg,image/webp,image/gif';standInput.hidden=true;
   const standButton=document.createElement('button');
@@ -101,53 +89,26 @@
   }
   standButton.addEventListener('click',()=>standInput.click());
   standInput.addEventListener('change',()=>{
-    const file=standInput.files&&standInput.files[0];if(!file)return;
-    if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){
-      alert('Escolha PNG, JPG, WebP ou GIF para o Stand.');return;
-    }
-    const url=URL.createObjectURL(file), img=new Image();
-    img.onload=()=>{
-      URL.revokeObjectURL(url);
-      const canvas=document.createElement('canvas');
-      const factor=Math.min(1,950/Math.max(img.naturalWidth,img.naturalHeight));
-      canvas.width=Math.max(1,Math.round(img.naturalWidth*factor));
-      canvas.height=Math.max(1,Math.round(img.naturalHeight*factor));
-      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-      const data=canvas.toDataURL('image/webp',.77);
-      try{
-        S.setStandPortrait(id,data);
-        updateStandPreview();
-      }catch(err){
-        console.error(err);
-        alert('Espaço local insuficiente para salvar Stand. Exporte backup ou use imagem menor.');
-      }
-    };
-    img.onerror=()=>{URL.revokeObjectURL(url);alert('Erro ao ler a imagem do Stand.');};
-    img.src=url;
-  });
+ const file=standInput.files&&standInput.files[0];if(!file)return;
+ if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){
+   alert('Escolha PNG, JPG, WEBP ou GIF.');return;
+ }
+ const reader=new FileReader();
+ reader.onload=()=>{
+   const original=reader.result;
+   if(typeof original!=='string')return;
+   try{S.setStandPortrait(id,original);updateStandPreview();}
+   catch(err){alert('Imagem grande demais para o armazenamento local.');}
+ };
+ reader.onerror=()=>alert('Não foi possível ler a imagem.');
+ reader.readAsDataURL(file);
+});
   if(portrait){
     portrait.append(input,standInput,actions);
     const note=portrait.querySelector('.np-live-note');
     if(note)note.textContent='Clique no STAND ou passe o mouse para revelar a segunda arte.';
   }
   updateStandPreview();
-  // Limpa visualmente também os retratos existentes salvos antes desta versão.
-  // A imagem original só é substituída no armazenamento se o jogador reenviar.
-  function cleanCurrentPortrait(){
-    const raw=S.get(id)?.portrait;
-    if(!raw||!window.KnaveBackground)return;
-    window.KnaveBackground.clean(raw).then(cleaned=>{
-      if(!cleaned||cleaned===raw||S.get(id)?.portrait!==raw)return;
-      const view=document.getElementById('fotoPreview');
-      if(view){
-        view.src=cleaned;
-        view.style.display='block';
-        document.getElementById('dropZone')?.classList.add('has-image');
-      }
-    });
-  }
-  setTimeout(cleanCurrentPortrait,220);
-
   // A ficha mantém seu CSS/JS original; adicionamos somente animação de entrada
   // e retorno para a biblioteca, sem mudar as regras ou os cálculos.
   const transitionStyle=document.createElement('style');

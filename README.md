@@ -1,60 +1,49 @@
-# FICHA KNAVE — Biblioteca de personagens
+# FICHA KNAVE • 201X
 
-Uma biblioteca visual de RPG, não um dashboard corporativo.
+Site independente de fichas de RPG com tema branco, preto e vermelho (inspirado na imagem 201X / parede de tijolos).
 
-## O que abre no ZIP
+## Abrir
+- Baixe o ZIP e extraia.
+- Abra `index.html` ou execute `python -m http.server 8000` na pasta e acesse http://localhost:8000 .
+- Pode publicar a pasta inteira numa hospedagem estática (ex.: Netlify).
 
-Abra **index.html** na raiz do projeto: é a nova tela **FICHA KNAVE**,
-com título central, grupos logo abaixo e cards grandes para os personagens.
-Não existe sidebar ou tela de indicadores.
+## Página inicial
+- Título compacto FICHA KNAVE, grupos logo abaixo e seleção de personagens em destaque.
+- Até **sete personagens por linha** em telas desktop amplas; com menos personagens, as cartas ficam centralizadas. Mais de sete passam para a linha seguinte.
+- Arte principal **de corpo inteiro**, em `object-fit: contain`, sem corte automático do corpo.
+- Botão `+ Personagem` continua acessível com a linha completa.
+- Textos decorativos e layout de dashboard removidos.
+- Estilo 201X, fundo de tijolos, tipografia estilo graffiti e detalhes vermelhos.
 
-Clique no retrato ou nome de um personagem para entrar na
-**ficha original do Nutripro II**, com animação de transição.
-Dentro da ficha, use **← FICHAS** para retornar suavemente à biblioteca.
+## Arte do Stand
+- Clique no menu `⋯` de uma carta para **enviar/trocar a foto do personagem** e **enviar/trocar ou remover a foto do Stand**.
+- Stand fica **atrás do personagem**, parcialmente visível.
+- Passe o mouse sobre a aba vermelha **STAND** para trazer a arte à frente, ou clique para manter a prévia (e clique novamente para voltar).
+- Quando não há Stand, a aba `+ STAND` abre o seletor de imagem.
+- Dentro da ficha existem botões **PERSONAGEM** e **STAND** para trocar ambas as artes e a mesma prévia.
+- PNG/WebP com fundo transparente funciona melhor para o Stand.
+- As imagens são compactadas para WebP antes de salvar para economizar espaço.
 
-## Organização
+## Personagens e grupos
+- Criar, renomear, excluir e buscar fichas.
+- Criar, renomear e excluir grupos.
+- Mover personagens entre grupos sem perder informações.
+- Copiar personagens para outros grupos com conteúdo independente.
+- Todos os dados da ficha (atributos, inventário, ordem dos slots, descrições e grimório) continuam sendo editados pelos **HTML e JavaScript originais do Nutripro II**. O tema 201X da ficha é separado em `knave-theme.css`.
 
-- **+ Grupo** cria um grupo de personagens logo abaixo do título.
-- Clique em um grupo para filtrar a galeria.
-- No menu ⋮ ao lado de cada grupo: renomear ou excluir grupo.
-- Para criar personagem, clique na carta **Novo personagem**.
-- Cada carta possui um menu ⋯ com **copiar, mover, renomear e excluir**.
-- Copiar cria uma ficha independente; mover preserva os dados.
-- Busca e exportação/importação de backup estão disponíveis discretamente.
+## Arquivos
+```
+index.html             <- Tela principal
+library.css            <- Visual 201X da biblioteca
+library.js             <- Cartas, grupos, upload e preview do Stand
+ficha_nutripro.html    <- Ficha original Nutripro II
+knave-theme.css        <- Novo visual 201X para a ficha (sem modificar regras)
+sheet-adapter.js       <- Integração com a ficha, retratos, Stand, voltar e backup
+storage.js             <- Fichas, grupos, Stand e dados salvos no navegador
+```
 
-## Ficha original preservada
+## Importante: salvamento local
+Esta versão usa `localStorage` no **navegador atual**, sem login nem sincronização entre dispositivos. Uma mudança de domínio pode criar outro armazenamento; a limpeza de dados do site pode apagar as fichas. Utilize a função **Exportar** e faça backup JSON regularmente.
 
-O arquivo **ficha_nutripro.html** foi mantido com seu HTML, CSS e JavaScript
-de atributos, inventário, slots, cálculos, descrições, grimório e regras originais.
-
-Dois complementos tornam o site independente do servidor VTT:
-
-- **storage.js**: implementa localmente as chamadas de salvamento da ficha,
-  com dados próprios para cada personagem;
-- **sheet-adapter.js**: retrato do personagem, backup individual,
-  transição para voltar à biblioteca.
-
-A tela inicial usa **library.css** e **library.js**, separados do código da ficha.
-
-## Executar
-
-1. Extraia o ZIP.
-2. Para uma experiência mais confiável, execute um servidor HTTP estático
-   dentro da pasta extraída, por exemplo: \`python -m http.server 8000\`.
-3. Acesse **http://localhost:8000/**.
-
-Você também pode publicar os arquivos da raiz numa hospedagem estática,
-como o Netlify, sem precisar de um servidor Node ou SQLite.
-
-## IMPORTANTE: persistência
-
-Esta versão salva as fichas no **localStorage** do navegador.
-Não existe login ou sincronização entre dispositivos. Ao limpar os
-dados do navegador ou mudar a origem do site, as fichas não migram
-automaticamente. Faça backup JSON regularmente.
-
-## Verificação
-
-Foram verificadas a presença dos arquivos, a integridade básica da
-navegação, os pontos de integração da ficha e a sintaxe dos scripts.
-Ainda não foi possível executar teste visual completo num navegador.
+## Validação
+Sintaxe dos scripts, integridade das ligações entre arquivos e presença das funções foram verificadas. Ainda **não foi possível realizar teste visual real em navegador**; ajuste de encaixe foi dimensionado em CSS por viewport e breakpoints.

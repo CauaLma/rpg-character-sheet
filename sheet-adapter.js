@@ -11,7 +11,7 @@
   const input=document.createElement('input');
   input.type='file';input.accept='image/png,image/jpeg,image/webp,image/gif';input.hidden=true;
   const button=document.createElement('button');
-  button.type='button';button.textContent='↑ TROCAR RETRATO';
+  button.type='button';button.textContent='↑ PERSONAGEM';
   button.title='Escolher imagem do personagem — salva junto da ficha';
   button.style.cssText='width:100%;margin-top:12px;padding:12px 8px;background:#0e160f;color:#b9d6a7;'+
     'border:1px solid #425743;letter-spacing:.13em;font-weight:900;font-size:10px;cursor:pointer';
@@ -26,7 +26,7 @@
       const img=new Image();
       img.onload=()=>{
         const canvas=document.createElement('canvas');
-        const size=600,scale=Math.min(1,size/Math.max(img.width,img.height));
+        const size=950,scale=Math.min(1,size/Math.max(img.width,img.height));
         canvas.width=Math.max(1,Math.round(img.width*scale));
         canvas.height=Math.max(1,Math.round(img.height*scale));
         const ctx=canvas.getContext('2d');
@@ -44,11 +44,90 @@
     };
     r.readAsDataURL(file);
   });
-  if(portrait){
-    portrait.appendChild(input);portrait.appendChild(button);
-    const note=portrait.querySelector('.np-live-note');
-    if(note)note.textContent='Retrato salvo neste navegador. Use o botão acima para escolher ou trocar a imagem.';
+  const standInput=document.createElement('input');
+  standInput.type='file';standInput.accept='image/png,image/jpeg,image/webp,image/gif';standInput.hidden=true;
+  const standButton=document.createElement('button');
+  standButton.type='button';standButton.textContent='✕ STAND';
+  standButton.title='Enviar a arte de corpo inteiro do Stand. PNG/WebP com fundo transparente funcionam melhor.';
+  const actions=document.createElement('div');
+  actions.className='np-art-actions';
+  actions.append(button,standButton);
+  const dropZone=document.getElementById('dropZone');
+  const mainPortrait=document.getElementById('fotoPreview');
+  let standPreview=null,standSwitch=null,standPinned=false;
+  function updateStandPreview(){
+    const c=S.get(id);
+    if(!dropZone||!mainPortrait)return;
+    if(!standPreview){
+      standPreview=document.createElement('img');
+      standPreview.className='np-stand-image';
+      standPreview.alt='Stand do personagem';
+      dropZone.insertBefore(standPreview,mainPortrait);
+    }
+    if(!standSwitch){
+      standSwitch=document.createElement('button');
+      standSwitch.type='button';standSwitch.className='np-stand-switch';
+      standSwitch.title='Passar o mouse para ver Stand ou clicar para alternar';
+      standSwitch.addEventListener('mouseenter',()=>{
+        if(S.get(id)?.standPortrait)dropZone.classList.add('stand-focus');
+      });
+      standSwitch.addEventListener('mouseleave',()=>{
+        if(!standPinned)dropZone.classList.remove('stand-focus');
+      });
+      standSwitch.addEventListener('click',()=>{
+        if(!S.get(id)?.standPortrait){standInput.click();return;}
+        standPinned=!standPinned;
+        standSwitch.setAttribute('aria-pressed',String(standPinned));
+        dropZone.classList.toggle('stand-focus',standPinned);
+        standSwitch.textContent=standPinned?'PERSONAGEM':'STAND';
+      });
+      dropZone.appendChild(standSwitch);
+    }
+    if(c?.standPortrait){
+      standPreview.src=c.standPortrait;
+      standPreview.hidden=false;
+      standSwitch.textContent='STAND';
+      standSwitch.disabled=false;
+    } else {
+      standPreview.removeAttribute('src');
+      standPreview.hidden=true;
+      standSwitch.textContent='＋ STAND';
+      standSwitch.disabled=false;
+      standPinned=false;dropZone.classList.remove('stand-focus');
+    }
   }
+  standButton.addEventListener('click',()=>standInput.click());
+  standInput.addEventListener('change',()=>{
+    const file=standInput.files&&standInput.files[0];if(!file)return;
+    if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){
+      alert('Escolha PNG, JPG, WebP ou GIF para o Stand.');return;
+    }
+    const url=URL.createObjectURL(file), img=new Image();
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      const canvas=document.createElement('canvas');
+      const factor=Math.min(1,950/Math.max(img.naturalWidth,img.naturalHeight));
+      canvas.width=Math.max(1,Math.round(img.naturalWidth*factor));
+      canvas.height=Math.max(1,Math.round(img.naturalHeight*factor));
+      canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+      const data=canvas.toDataURL('image/webp',.77);
+      try{
+        S.setStandPortrait(id,data);
+        updateStandPreview();
+      }catch(err){
+        console.error(err);
+        alert('Espaço local insuficiente para salvar Stand. Exporte backup ou use imagem menor.');
+      }
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);alert('Erro ao ler a imagem do Stand.');};
+    img.src=url;
+  });
+  if(portrait){
+    portrait.append(input,standInput,actions);
+    const note=portrait.querySelector('.np-live-note');
+    if(note)note.textContent='Clique no STAND ou passe o mouse para revelar a segunda arte.';
+  }
+  updateStandPreview();
 
   // A ficha mantém seu CSS/JS original; adicionamos somente animação de entrada
   // e retorno para a biblioteca, sem mudar as regras ou os cálculos.

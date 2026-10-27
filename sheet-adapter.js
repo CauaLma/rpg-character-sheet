@@ -117,6 +117,20 @@
       try{
         S.setStandPortrait(id,data);
         updateStandPreview();
+      }catch(err){
+        console.error(err);
+        alert('Espaço local insuficiente para salvar Stand. Exporte backup ou use imagem menor.');
+      }
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);alert('Erro ao ler a imagem do Stand.');};
+    img.src=url;
+  });
+  if(portrait){
+    portrait.append(input,standInput,actions);
+    const note=portrait.querySelector('.np-live-note');
+    if(note)note.textContent='Clique no STAND ou passe o mouse para revelar a segunda arte.';
+  }
+  updateStandPreview();
   // Limpa visualmente também os retratos existentes salvos antes desta versão.
   // A imagem original só é substituída no armazenamento se o jogador reenviar.
   function cleanCurrentPortrait(){
@@ -133,20 +147,6 @@
     });
   }
   setTimeout(cleanCurrentPortrait,220);
-      }catch(err){
-        console.error(err);
-        alert('Espaço local insuficiente para salvar Stand. Exporte backup ou use imagem menor.');
-      }
-    };
-    img.onerror=()=>{URL.revokeObjectURL(url);alert('Erro ao ler a imagem do Stand.');};
-    img.src=url;
-  });
-  if(portrait){
-    portrait.append(input,standInput,actions);
-    const note=portrait.querySelector('.np-live-note');
-    if(note)note.textContent='Clique no STAND ou passe o mouse para revelar a segunda arte.';
-  }
-  updateStandPreview();
 
   // A ficha mantém seu CSS/JS original; adicionamos somente animação de entrada
   // e retorno para a biblioteca, sem mudar as regras ou os cálculos.

@@ -49,6 +49,30 @@
     const note=portrait.querySelector('.np-live-note');
     if(note)note.textContent='Retrato salvo neste navegador. Use o botão acima para escolher ou trocar a imagem.';
   }
+
+  // A ficha mantém seu CSS/JS original; adicionamos somente animação de entrada
+  // e retorno para a biblioteca, sem mudar as regras ou os cálculos.
+  const transitionStyle=document.createElement('style');
+  transitionStyle.textContent='@keyframes npKnaveEnter{from{opacity:0}to{opacity:1}}'+
+    'body{animation:npKnaveEnter .55s ease-out both}'+
+    'body.np-knave-exiting{animation:none!important;opacity:0!important;transition:opacity .34s ease!important}';
+  document.head.appendChild(transitionStyle);
+  const backToLibrary=document.querySelector('.np-back');
+  if(backToLibrary){
+    backToLibrary.removeAttribute('onclick');
+    backToLibrary.textContent='← FICHAS';
+    backToLibrary.title='Voltar para a biblioteca Ficha Knave';
+    backToLibrary.addEventListener('click',async event=>{
+      event.preventDefault();
+      if(backToLibrary.disabled)return;
+      backToLibrary.disabled=true;
+      try{if(typeof window.salvarDados==='function')await window.salvarDados();}
+      catch(error){console.warn('Salvamento antes de voltar:',error);}
+      document.body.classList.add('np-knave-exiting');
+      setTimeout(()=>{location.href='index.html';},340);
+    });
+  }
+
   const topBar=document.querySelector('.np-commandbar')||document.querySelector('.np-sheet-head');
   if(topBar){
     const exportBtn=document.createElement('button');

@@ -152,3 +152,22 @@ body.leaving .transition-line{width:170px}
  .character-card,.create-card{flex-basis:calc((100% - 8px)/2);width:calc((100% - 8px)/2);height:clamp(300px,calc(100dvh - 245px),550px)}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* FIX — foto inteira centralizada, sem faixa escura embutida no layout.
+   Imagens com fundo sólido são limpas por background-remover.js. */
+.fighter-stage{background:transparent!important;}
+.character-card{background:rgba(244,244,241,.84);}
+.main-art{inset:0!important;}
+.main-art .fighter-main{
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  margin:0!important;
+}
+.fighter-stand{
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+}
+.character-card .fighter-stage:after{background:none!important;}

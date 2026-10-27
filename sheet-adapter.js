@@ -31,13 +31,16 @@
         canvas.height=Math.max(1,Math.round(img.height*scale));
         const ctx=canvas.getContext('2d');
         ctx.drawImage(img,0,0,canvas.width,canvas.height);
-        const data=canvas.toDataURL('image/jpeg',.76);
-        try{
-          S.setPortrait(id,data);
-          const view=document.getElementById('fotoPreview');
-          if(view){view.src=data;view.style.display='block';}
-          document.getElementById('dropZone')?.classList.add('has-image');
-        }catch(e){alert('Não foi possível salvar o retrato. Exporte um backup ou tente uma imagem menor.');}
+        const data=canvas.toDataURL('image/webp',.86);
+        const cleaned=window.KnaveBackground?window.KnaveBackground.clean(data):Promise.resolve(data);
+        cleaned.then(output=>{
+          try{
+            S.setPortrait(id,output);
+            const view=document.getElementById('fotoPreview');
+            if(view){view.src=output;view.style.display='block';}
+            document.getElementById('dropZone')?.classList.add('has-image');
+          }catch(e){alert('Não foi possível salvar o retrato. Exporte um backup ou tente uma imagem menor.');}
+        });
       };
       img.onerror=()=>alert('Não foi possível ler a imagem.');
       img.src=r.result;
@@ -114,6 +117,22 @@
       try{
         S.setStandPortrait(id,data);
         updateStandPreview();
+  // Limpa visualmente também os retratos existentes salvos antes desta versão.
+  // A imagem original só é substituída no armazenamento se o jogador reenviar.
+  function cleanCurrentPortrait(){
+    const raw=S.get(id)?.portrait;
+    if(!raw||!window.KnaveBackground)return;
+    window.KnaveBackground.clean(raw).then(cleaned=>{
+      if(!cleaned||cleaned===raw||S.get(id)?.portrait!==raw)return;
+      const view=document.getElementById('fotoPreview');
+      if(view){
+        view.src=cleaned;
+        view.style.display='block';
+        document.getElementById('dropZone')?.classList.add('has-image');
+      }
+    });
+  }
+  setTimeout(cleanCurrentPortrait,220);
       }catch(err){
         console.error(err);
         alert('Espaço local insuficiente para salvar Stand. Exporte backup ou use imagem menor.');

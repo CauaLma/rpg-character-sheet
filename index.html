@@ -3,41 +3,106 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#070a08">
-<title>Nutripro II — Arquivo de Personagens</title>
+<meta name="theme-color" content="#0b100d">
+<meta name="description" content="Ficha Knave — seu grimório de personagens, histórias e aventuras.">
+<title>FICHA KNAVE — Personagens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="library.css">
 <script defer src="storage.js"></script>
 <script defer src="library.js"></script>
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div class="brand"><div class="brand-mark">N<span>II</span></div><div><div class="eyebrow">SISTEMA DE FICHAS</div><strong>NUTRIPRO II</strong></div></div>
-    <div class="side-caption">ARQUIVO / PERSONAGENS</div>
-    <button class="group-entry selected" data-filter="all"><span class="group-icon">▦</span><span>Todos os personagens</span><em id="allCount">0</em></button>
-    <button class="group-entry" data-filter="ungrouped"><span class="group-icon">◇</span><span>Sem grupo</span><em id="ungroupedCount">0</em></button>
-    <div class="side-heading"><span>GRUPOS</span><button id="newGroupBtn" title="Criar grupo">+</button></div>
-    <div id="groupList" class="group-list"></div>
-    <div class="side-bottom"><div class="status-led"></div><div><strong>ARQUIVO LOCAL</strong><span>Fichas salvas neste navegador</span></div></div>
-  </aside>
-  <main class="content">
-    <header class="toolbar">
-      <div class="bread">NUTRIPRO <span>/</span> FICHAS <span>/</span> <b id="breadcrumbGroup">TODOS</b></div>
-      <div class="toolbar-actions"><button id="backupBtn" class="quiet-btn">↓ Exportar backup</button><button id="restoreBtn" class="quiet-btn">↑ Importar backup</button><input id="backupInput" type="file" accept=".json,application/json" hidden></div>
-    </header>
-    <section class="hero">
-      <div><div class="eyebrow accent">DATABASE // REGISTROS DE PERSONAGENS</div><h1 id="viewTitle">Seus personagens<span>.</span></h1><p>Crie, organize, mova e copie fichas completas. A ficha original do Nutripro permanece intacta.</p></div>
-      <button class="primary-btn" id="newCharacterBtn"><span>＋</span> Nova ficha</button>
-    </section>
-    <section class="overview"><div><span>PERSONAGENS</span><strong id="statCharacters">0</strong></div><div><span>GRUPOS</span><strong id="statGroups">0</strong></div><div><span>NO GRUPO ATUAL</span><strong id="statVisible">0</strong></div></section>
-    <section class="list-heading"><div><div class="eyebrow">REGISTROS DISPONÍVEIS</div><h2 id="sectionTitle">Todos os personagens</h2></div><div class="search-wrap"><span>⌕</span><input id="searchInput" type="search" autocomplete="off" placeholder="Buscar personagem..."></div></section>
-    <section id="characterGrid" class="characters"></section>
-    <div id="emptyState" class="empty-state" hidden><div class="empty-symbol">◇</div><h3>Seu arquivo está vazio</h3><p>Crie uma ficha para começar. Os atributos, cálculos, inventário e grimório serão os do Nutripro original.</p><button class="outline-btn" id="emptyCreateBtn">Criar personagem</button></div>
-    <footer class="footer"><span>NUTRIPRO II / ARQUIVO INDEPENDENTE</span><span>Salvamento local • faça backups para evitar perda de dados</span></footer>
+<div class="ambient" aria-hidden="true"></div>
+<div class="book">
+  <header class="masthead">
+    <div class="top-ornament" aria-hidden="true"><span></span><b>✦</b><span></span></div>
+    <div class="masthead-top">
+      <span class="edition">UM LUGAR PARA SUAS HISTÓRIAS</span>
+      <div class="archive-actions">
+        <button type="button" class="tiny-action" id="backupBtn" title="Exportar todas as fichas em JSON" aria-label="Exportar backup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v12m-5-5 5 5 5-5M5 17v3h14v-3"/></svg>
+          <span>Exportar</span>
+        </button>
+        <button type="button" class="tiny-action" id="restoreBtn" title="Importar backup de fichas" aria-label="Importar backup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 17V5m-5 5 5-5 5 5M5 17v3h14v-3"/></svg>
+          <span>Importar</span>
+        </button>
+        <input id="backupInput" type="file" accept="application/json,.json" hidden>
+      </div>
+    </div>
+    <h1>FICHA <em>KNAVE</em></h1>
+    <div class="title-flourish" aria-hidden="true"><span></span><b>❧</b><span></span></div>
+    <nav class="groups" aria-label="Grupos de personagens">
+      <button type="button" class="group-chip active" data-filter="all">Todos <span class="chip-count" id="allCount">0</span></button>
+      <button type="button" class="group-chip" data-filter="ungrouped">Sem grupo</button>
+      <div id="groupList" class="group-list"></div>
+      <button type="button" class="add-group" id="newGroupBtn" title="Criar um grupo">+ <span>Grupo</span></button>
+    </nav>
+  </header>
+
+  <main class="collection">
+    <div class="collection-heading">
+      <div class="heading-text">
+        <span class="heading-spark">✧</span>
+        <h2 id="sectionTitle">Seus personagens</h2>
+        <span class="heading-count" id="visibleCount">0</span>
+      </div>
+      <label class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.3 15.3 5 5"/></svg>
+        <input id="searchInput" type="search" placeholder="Buscar personagem..." aria-label="Buscar personagem">
+      </label>
+    </div>
+
+    <section class="character-grid" id="characterGrid" aria-label="Fichas dos personagens"></section>
+    <div class="no-results" id="emptyState" hidden>
+      <span class="no-results-symbol">✧</span>
+      <h3>Nenhum personagem encontrado</h3>
+      <p>Comece uma nova história criando sua primeira ficha.</p>
+      <button type="button" class="text-link" id="emptyCreateBtn">Criar personagem <span aria-hidden="true">↗</span></button>
+    </div>
   </main>
+  <footer class="book-footer"><span>✦</span> Todo herói tem uma história a contar <span>✦</span></footer>
 </div>
-<dialog id="characterDialog" class="dialog"><form method="dialog" id="createForm"><div class="dialog-head"><div class="eyebrow accent">NOVO REGISTRO</div><h2>Criar personagem</h2></div><label>Nome do personagem<input id="characterName" maxlength="80" required placeholder="Ex.: Arthur Roverse"></label><label>Grupo<select id="characterGroup"></select></label><div class="dialog-actions"><button type="button" data-close="characterDialog" class="quiet-btn">Cancelar</button><button type="submit" class="primary-btn">Criar e abrir ficha</button></div></form></dialog>
-<dialog id="transferDialog" class="dialog"><form method="dialog" id="transferForm"><div class="dialog-head"><div class="eyebrow accent" id="transferKicker">ORGANIZAR</div><h2 id="transferTitle">Mover personagem</h2><p id="transferInfo"></p></div><label>Grupo de destino<select id="targetGroup"></select></label><div class="dialog-actions"><button type="button" data-close="transferDialog" class="quiet-btn">Cancelar</button><button type="submit" class="primary-btn" id="transferConfirm">Confirmar</button></div></form></dialog>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="characterDialog" class="dialog">
+  <form method="dialog" id="createForm">
+    <div class="dialog-symbol">✦</div>
+    <div class="dialog-overline">UMA NOVA HISTÓRIA</div>
+    <h2>Criar personagem</h2>
+    <p>Um nome é o primeiro passo de uma aventura.</p>
+    <label>Nome do personagem<input id="characterName" required maxlength="80" autocomplete="off" placeholder="Como seu personagem se chama?"></label>
+    <label>Grupo<select id="characterGroup"></select></label>
+    <div class="dialog-actions">
+      <button type="button" class="btn-quiet" data-close="characterDialog">Cancelar</button>
+      <button type="submit" class="btn-gold">Criar ficha <span>→</span></button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="transferDialog" class="dialog">
+  <form method="dialog" id="transferForm">
+    <div class="dialog-symbol">❧</div>
+    <div class="dialog-overline" id="transferKicker">ORGANIZAR PERSONAGEM</div>
+    <h2 id="transferTitle">Mover personagem</h2>
+    <p id="transferInfo"></p>
+    <label>Grupo de destino<select id="targetGroup"></select></label>
+    <div class="dialog-actions">
+      <button type="button" class="btn-quiet" data-close="transferDialog">Cancelar</button>
+      <button type="submit" class="btn-gold" id="transferConfirm">Confirmar <span>→</span></button>
+    </div>
+  </form>
+</dialog>
+
+<div id="pageTransition" class="page-transition" aria-hidden="true">
+  <div class="transition-content">
+    <div class="transition-symbol">✦</div>
+    <span>UM NOVO CAPÍTULO</span>
+    <strong id="transitionName">Personagem</strong>
+    <div class="transition-line"></div>
+  </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

@@ -57,3 +57,17 @@ Sintaxe dos scripts, integridade das ligações entre arquivos e presença das f
 
 ## Caso a ficha ainda mostre uma faixa preta no personagem
 A foto original enviada pode ter canal alfa correto, mas versões anteriores do site salvaram JPEG/WebP com preto embutido na imagem. O CSS não consegue recuperar informação de transparência apagada. Neste caso: abra a carta, clique em **⋯ → Reenviar PNG original** e selecione o PNG transparente original (sem fazer nenhuma edição). A nova versão salva o arquivo bruto via FileReader, preservando o canal alfa. O restante da ficha não é alterado.
+
+## Atualização: Ficha do Stand e edição Obsidian
+
+- **Dentro da ficha**, passar o mouse sobre STAND ainda exibe uma prévia da imagem.
+- **Clicar na aba STAND** abre uma segunda versão da ficha, separada, com a imagem do stand, campo **Nome do Stand** e um único campo grande de **descrição/habilidades**.
+- O nome do Stand é `npStandNome`, não sobrescreve `charNome` nem o nome da carta.
+- O texto do Stand fica salvo em `npStandMarkdown`, formato Markdown editável, independentemente de itens e anotações do personagem.
+- O editor de descrição dos itens mantém o HTML compatível com a ficha antiga e salva também o Markdown escrito em `npItemMarkdown_XX`.
+- Nos dois editores, a antiga fileira de botões foi substituída por **Editar texto / Visualizar formatado**. Edite em Markdown/Obsidian: `# títulos`, `**negrito**`, `*itálico*`, `==destaque==`, `[[links]]`, tabelas, tarefas `- [ ]`, callouts `> [!note]`, etc.
+- As descrições legadas continuam acessíveis. Ao editar uma descrição antiga, o sistema cria uma versão Markdown a partir do HTML existente; recursos complexos podem demandar revisão na primeira conversão.
+- O botão agora diz **ABRIR GRIMÓRIO**. As cores do inventário, dos editores e do grimório foram corrigidas para texto escuro em fundo claro, com destaques vermelhos.
+- Toda a alteração visual está em `knave-editors.css`, e a lógica complementar em `knave-editors.js`. O JavaScript de cálculos da ficha original foi preservado.
+
+**Persistência:** continua local no navegador. Use o backup JSON antes de trocar de dispositivo, domínio ou limpar dados.

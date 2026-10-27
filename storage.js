@@ -26,7 +26,7 @@
   function create(name,groupId){
     const db=read();
     const item={id:unique(),name:String(name||'Sem nome').trim()||'Sem nome',
-      groupId:groupId||null,created_at:now(),updated_at:now(),dados:{},portrait:''};
+      groupId:groupId||null,created_at:now(),updated_at:now(),dados:{},portrait:'',standPortrait:''};
     db.characters.unshift(item);write(db);return item;
   }
   function saveSheet(id,dados,nome){
@@ -39,6 +39,10 @@
   function setPortrait(id,url){
     const db=read();const c=db.characters.find(x=>x.id===id);if(!c)return false;
     c.portrait=String(url||'');c.updated_at=now();write(db);return true;
+  }
+  function setStandPortrait(id,url){
+    const db=read();const c=db.characters.find(x=>x.id===id);if(!c)return false;
+    c.standPortrait=String(url||'');c.updated_at=now();write(db);return true;
   }
   function duplicate(id,groupId){
     const db=read(),source=db.characters.find(x=>x.id===id);if(!source)return null;
@@ -89,12 +93,13 @@
         groupId:groupIds.has(c.groupId)?c.groupId:null,
         dados:c.dados && typeof c.dados==='object' && !Array.isArray(c.dados)?c.dados:{},
         portrait:typeof c.portrait==='string'?c.portrait:'',
+        standPortrait:typeof c.standPortrait==='string'?c.standPortrait:'',
         created_at:c.created_at||now(),updated_at:c.updated_at||now()});
     }
     write(db);return db;
   }
   window.NutriproStore={KEY,read,write,get,create,saveSheet,setPortrait,duplicate,
-    rename,move,remove,createGroup,renameGroup,deleteGroup,importDB};
+    rename,move,remove,createGroup,renameGroup,deleteGroup,importDB,setStandPortrait};
 
   // Compatibilidade 1:1 com as chamadas de salvamento da ficha original.
   if(typeof window.fetch==='function'){

@@ -71,3 +71,15 @@ A foto original enviada pode ter canal alfa correto, mas versões anteriores do 
 - Toda a alteração visual está em `knave-editors.css`, e a lógica complementar em `knave-editors.js`. O JavaScript de cálculos da ficha original foi preservado.
 
 **Persistência:** continua local no navegador. Use o backup JSON antes de trocar de dispositivo, domínio ou limpar dados.
+
+
+## Atualização — favicon original 201X e versão para celular
+
+- O favicon de **index.html** e **ficha_nutripro.html** usa um recorte reduzido da imagem 201X enviada na conversa (parede branca de tijolos e letras vermelhas), incorporado diretamente como data URL, para funcionar também offline.
+- Removidas frases genéricas/clichês da criação de personagem, da carta de nova ficha e do estado vazio.
+- **Celular (até 850 px):** cabeçalho e grupos compactos, botões de exportar/importar fáceis de tocar, cards com arte inteira em duas colunas (três em tablets), busca ocupando a largura da tela e menus com alvos de toque maiores.
+- **Ficha no celular:** retrato e identidade lado a lado, informações de PV/CA/PA/Nível/XP em grade sem cortes, capacidades 3 por linha, inventário em cards de largura confortável, modais e editor Obsidian adaptados à altura real do aparelho.
+- **Stand no celular:** própria página com cabeçalho fixo, arte em destaque e campo grande de texto Markdown; a aba STAND segue clicável sem depender de hover.
+- Arquivo separado \`knave-mobile.css\`, carregado por último nas duas páginas. O CSS de desktop e todos os cálculos da ficha foram mantidos.
+
+Nota: checamos a integridade do CSS, links, scripts e funcionalidades por inspeção estática; aparência final em todos os aparelhos ainda precisa de testes visuais em navegador real.

@@ -171,3 +171,28 @@ body.leaving .transition-line{width:170px}
   object-position:50% 50%!important;
 }
 .character-card .fighter-stage:after{background:none!important;}
+
+/* Transparência nativa: não adicionar camadas pretas, filtros ou processamento
+   sobre o PNG original do personagem. Nenhum pixel é removido ou recolorido. */
+.character-card .fighter-stage{background:transparent!important;}
+.character-card .main-art{
+  background:transparent!important;
+  background-color:transparent!important;
+  border:0!important;
+  padding:0!important;
+  appearance:none!important;
+  overflow:visible!important;
+}
+.character-card .main-art img.fighter-main{
+  display:block!important;
+  background:none!important;
+  background-color:transparent!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  image-rendering:auto!important;
+  filter:none!important;
+  mix-blend-mode:normal!important;
+}
+.character-card .fighter-stage::after{display:none!important;}

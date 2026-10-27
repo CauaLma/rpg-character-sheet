@@ -58,7 +58,7 @@
     if(!standSwitch){
       standSwitch=document.createElement('button');
       standSwitch.type='button';standSwitch.className='np-stand-switch';
-      standSwitch.title='Passar o mouse para ver Stand ou clicar para alternar';
+      standSwitch.title='Passe o mouse para prévia; clique para abrir a ficha do Stand';
       standSwitch.addEventListener('mouseenter',()=>{
         if(S.get(id)?.standPortrait)dropZone.classList.add('stand-focus');
       });
@@ -66,6 +66,12 @@
         if(!standPinned)dropZone.classList.remove('stand-focus');
       });
       standSwitch.addEventListener('click',()=>{
+        if(window.KnaveStandSheet?.open){
+          dropZone.classList.remove('stand-focus');
+          standPinned=false;
+          window.KnaveStandSheet.open();
+          return;
+        }
         if(!S.get(id)?.standPortrait){standInput.click();return;}
         standPinned=!standPinned;
         standSwitch.setAttribute('aria-pressed',String(standPinned));

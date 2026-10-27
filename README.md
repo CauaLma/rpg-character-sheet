@@ -47,3 +47,11 @@ Esta versão usa `localStorage` no **navegador atual**, sem login nem sincroniza
 
 ## Validação
 Sintaxe dos scripts, integridade das ligações entre arquivos e presença das funções foram verificadas. Ainda **não foi possível realizar teste visual real em navegador**; ajuste de encaixe foi dimensionado em CSS por viewport e breakpoints.
+
+## Correção de retratos (Vicent e outros personagens)
+- O PNG é centralizado horizontalmente e verticalmente na carta, sem ficar preso ao rodapé.
+- O cenário artificial atrás da imagem foi removido da carta.
+- `background-remover.js` tenta remover automaticamente bordas de cor uniforme (como fundo preto) das fotos já salvas e de novas fotos. Fotos existentes são preservadas no armazenamento até usar a opção manual.
+- No menu `⋯` de cada personagem há a função **Remover fundo**, que salva o recorte de forma permanente e passa a integrá-lo aos backups.
+- Dentro da ficha, os retratos antigos também recebem prévia sem fundo e novos uploads recebem limpeza automática.
+- Fundos complexos ou com cores semelhantes às roupas podem exigir recorte manual em editor de imagem. O procedimento automático evita fundos não uniformes, em vez de apagar todo pixel escuro.

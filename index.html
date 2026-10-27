@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b100d">
-<meta name="description" content="Ficha Knave — seu grimório de personagens, histórias e aventuras.">
+<meta name="theme-color" content="#efebe2">
+<meta name="description" content="Ficha Knave — selecione um personagem.">
 <title>FICHA KNAVE — Personagens</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;500;600;700;800&family=Permanent+Marker&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="library.css">
 <script defer src="storage.js"></script>
 <script defer src="library.js"></script>
@@ -17,9 +17,9 @@
 <div class="ambient" aria-hidden="true"></div>
 <div class="book">
   <header class="masthead">
-    <div class="top-ornament" aria-hidden="true"><span></span><b>✦</b><span></span></div>
+    
     <div class="masthead-top">
-      <span class="edition">UM LUGAR PARA SUAS HISTÓRIAS</span>
+      
       <div class="archive-actions">
         <button type="button" class="tiny-action" id="backupBtn" title="Exportar todas as fichas em JSON" aria-label="Exportar backup">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v12m-5-5 5 5 5-5M5 17v3h14v-3"/></svg>
@@ -32,8 +32,8 @@
         <input id="backupInput" type="file" accept="application/json,.json" hidden>
       </div>
     </div>
-    <h1>FICHA <em>KNAVE</em></h1>
-    <div class="title-flourish" aria-hidden="true"><span></span><b>❧</b><span></span></div>
+    <h1><span>FICHA</span> <em>KNAVE</em><i>✕</i></h1>
+    
     <nav class="groups" aria-label="Grupos de personagens">
       <button type="button" class="group-chip active" data-filter="all">Todos <span class="chip-count" id="allCount">0</span></button>
       <button type="button" class="group-chip" data-filter="ungrouped">Sem grupo</button>
@@ -45,7 +45,7 @@
   <main class="collection">
     <div class="collection-heading">
       <div class="heading-text">
-        <span class="heading-spark">✧</span>
+        
         <h2 id="sectionTitle">Seus personagens</h2>
         <span class="heading-count" id="visibleCount">0</span>
       </div>
@@ -63,13 +63,13 @@
       <button type="button" class="text-link" id="emptyCreateBtn">Criar personagem <span aria-hidden="true">↗</span></button>
     </div>
   </main>
-  <footer class="book-footer"><span>✦</span> Todo herói tem uma história a contar <span>✦</span></footer>
+  
 </div>
 
 <dialog id="characterDialog" class="dialog">
   <form method="dialog" id="createForm">
-    <div class="dialog-symbol">✦</div>
-    <div class="dialog-overline">UMA NOVA HISTÓRIA</div>
+    
+    <div class="dialog-overline">CRIAR PERSONAGEM</div>
     <h2>Criar personagem</h2>
     <p>Um nome é o primeiro passo de uma aventura.</p>
     <label>Nome do personagem<input id="characterName" required maxlength="80" autocomplete="off" placeholder="Como seu personagem se chama?"></label>
@@ -83,7 +83,7 @@
 
 <dialog id="transferDialog" class="dialog">
   <form method="dialog" id="transferForm">
-    <div class="dialog-symbol">❧</div>
+    
     <div class="dialog-overline" id="transferKicker">ORGANIZAR PERSONAGEM</div>
     <h2 id="transferTitle">Mover personagem</h2>
     <p id="transferInfo"></p>
@@ -97,8 +97,8 @@
 
 <div id="pageTransition" class="page-transition" aria-hidden="true">
   <div class="transition-content">
-    <div class="transition-symbol">✦</div>
-    <span>UM NOVO CAPÍTULO</span>
+    <div class="transition-symbol">X</div>
+    <span>ABRINDO FICHA</span>
     <strong id="transitionName">Personagem</strong>
     <div class="transition-line"></div>
   </div>

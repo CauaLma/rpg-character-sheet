@@ -88,3 +88,6 @@ body:before{inset:0!important;position:fixed!important;z-index:0!important;opaci
 @media(max-width:1070px){.np-dashboard{grid-template-columns:1fr!important}.np-items,#items,#itemsExtras{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:750px){.np-hero{grid-template-columns:1fr!important}.np-portrait-wrap{width:100%!important;border-right:0!important;border-bottom:3px solid #171717!important}.np-live-portrait{height:360px!important}.np-identity{padding:12px!important}.np-attr-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.np-items,#items,#itemsExtras{grid-template-columns:repeat(2,minmax(0,1fr))!important}.np-commandbar{height:auto!important;padding:8px 4px!important;flex-wrap:wrap!important}.np-app-shell{width:calc(100% - 20px)!important}}
 @media(max-width:480px){.np-items,#items,#itemsExtras{grid-template-columns:1fr!important}.np-vital-strip{gap:3px!important}.np-vital{min-width:75px!important}.np-commandbar .np-brand strong{font-size:17px!important}}
+
+/* A ficha original força imagens visíveis; respeitar o atributo hidden da nova arte. */
+.np-live-portrait img[hidden]{display:none!important}

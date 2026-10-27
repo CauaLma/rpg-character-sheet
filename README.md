@@ -54,3 +54,6 @@ Sintaxe dos scripts, integridade das ligações entre arquivos e presença das f
 - A foto aparece centralizada, com object-fit: contain, mantendo o corpo inteiro se ele existir na imagem.
 - Caso uma imagem já tenha sido salva após a versão anterior ter apagado partes dela, é necessário reenviar o PNG original pelo menu ⋯ → Foto do personagem (ou restaurar um backup anterior). A edição destrutiva não pode ser revertida sem o original.
 - Fotos muito grandes podem exceder a cota localStorage; nesse caso o site avisa e não substitui a imagem existente.
+
+## Caso a ficha ainda mostre uma faixa preta no personagem
+A foto original enviada pode ter canal alfa correto, mas versões anteriores do site salvaram JPEG/WebP com preto embutido na imagem. O CSS não consegue recuperar informação de transparência apagada. Neste caso: abra a carta, clique em **⋯ → Reenviar PNG original** e selecione o PNG transparente original (sem fazer nenhuma edição). A nova versão salva o arquivo bruto via FileReader, preservando o canal alfa. O restante da ficha não é alterado.

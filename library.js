@@ -73,7 +73,7 @@ function draw(){
  const showCreate=!query;
  let markup=arr.map((c,i)=>characterCard(c,db,i)).join('');
  if(showCreate && arr.length<7)markup+='<button type="button" class="create-card" id="newCharacterCard">'+
- '<span class="create-symbol">+</span><strong>Novo personagem</strong><small>CRIAR FICHA</small></button>';
+ '<span class="create-symbol">+</span><strong>Novo personagem</strong></button>';
  $('characterGrid').innerHTML=markup;
  $('emptyState').hidden=arr.length!==0 || showCreate;
 

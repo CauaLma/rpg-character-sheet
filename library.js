@@ -64,9 +64,9 @@ function draw(){
  arr.sort((a,b)=>String(b.updated_at||'').localeCompare(String(a.updated_at||'')));
  $('visibleCount').textContent=arr.length;
  const showCreate=!query;
- let markup=showCreate?'<button type="button" class="create-card" id="newCharacterCard">'+
- '<span class="create-symbol">+</span><strong>Novo personagem</strong><small>Uma aventura começa aqui</small></button>':'';
- markup+=arr.map((c,i)=>characterCard(c,db,i)).join('');
+ let markup=arr.map((c,i)=>characterCard(c,db,i)).join('');
+ if(showCreate)markup+='<button type="button" class="create-card" id="newCharacterCard">'+
+ '<span class="create-symbol">+</span><strong>Novo personagem</strong><small>Uma aventura começa aqui</small></button>';
  $('characterGrid').innerHTML=markup;
  $('emptyState').hidden=arr.length!==0 || showCreate;
 }
@@ -149,7 +149,6 @@ async function restore(file){
  }catch(err){alert('Não foi possível importar o backup: '+err.message);}
 }
 $('newGroupBtn').addEventListener('click',createGroup);
-$('groups')?.addEventListener?.('click',()=>{}); // Elemento de navegação acessível via delegação abaixo
 document.querySelector('.groups').addEventListener('click',e=>{
  const option=e.target.closest('[data-group-action]');
  if(option){e.stopPropagation();groupAction(option.dataset.groupAction,option.dataset.groupId);return;}

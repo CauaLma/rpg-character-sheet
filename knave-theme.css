@@ -91,3 +91,14 @@ body:before{inset:0!important;position:fixed!important;z-index:0!important;opaci
 
 /* A ficha original força imagens visíveis; respeitar o atributo hidden da nova arte. */
 .np-live-portrait img[hidden]{display:none!important}
+
+/* Centralização e fundo limpo da foto na ficha, inclusive dados antigos. */
+.np-live-portrait{background:transparent!important;}
+.np-live-portrait #fotoPreview,
+.np-live-portrait .np-stand-image{
+  object-fit:contain!important;
+  object-position:50% 50%!important;
+  left:0!important;top:0!important;
+  width:100%!important;height:100%!important;
+}
+.np-live-portrait:after{pointer-events:none;}

@@ -1,66 +1,60 @@
-# NUTRIPRO II — Site independente de fichas
+# FICHA KNAVE — Biblioteca de personagens
 
-A **página inicial** deste ZIP é \`index.html\` — a biblioteca de personagens com grupos.
-Ao clicar em "Abrir ficha", o usuário acessa \`ficha_nutripro.html\`.
+Uma biblioteca visual de RPG, não um dashboard corporativo.
 
-**Esta entrega não é a ficha de investigador antiga.** O arquivo de ficha é o HTML,
-CSS e JavaScript do Nutripro II fornecido pelo usuário, com duas inclusões mínimas
-para operar sem o servidor VTT:
+## O que abre no ZIP
 
-- \`storage.js\`: simula as rotas /api/sheets e /api/token que a ficha original utiliza,
-  salvando seus dados no navegador por personagem.
-- \`sheet-adapter.js\`: restaura a possibilidade de escolher retrato e permite
-  exportar backup de uma única ficha.
+Abra **index.html** na raiz do projeto: é a nova tela **FICHA KNAVE**,
+com título central, grupos logo abaixo e cards grandes para os personagens.
+Não existe sidebar ou tela de indicadores.
 
-## Como usar
+Clique no retrato ou nome de um personagem para entrar na
+**ficha original do Nutripro II**, com animação de transição.
+Dentro da ficha, use **← FICHAS** para retornar suavemente à biblioteca.
+
+## Organização
+
+- **+ Grupo** cria um grupo de personagens logo abaixo do título.
+- Clique em um grupo para filtrar a galeria.
+- No menu ⋮ ao lado de cada grupo: renomear ou excluir grupo.
+- Para criar personagem, clique na carta **Novo personagem**.
+- Cada carta possui um menu ⋯ com **copiar, mover, renomear e excluir**.
+- Copiar cria uma ficha independente; mover preserva os dados.
+- Busca e exportação/importação de backup estão disponíveis discretamente.
+
+## Ficha original preservada
+
+O arquivo **ficha_nutripro.html** foi mantido com seu HTML, CSS e JavaScript
+de atributos, inventário, slots, cálculos, descrições, grimório e regras originais.
+
+Dois complementos tornam o site independente do servidor VTT:
+
+- **storage.js**: implementa localmente as chamadas de salvamento da ficha,
+  com dados próprios para cada personagem;
+- **sheet-adapter.js**: retrato do personagem, backup individual,
+  transição para voltar à biblioteca.
+
+A tela inicial usa **library.css** e **library.js**, separados do código da ficha.
+
+## Executar
 
 1. Extraia o ZIP.
-2. Abra o arquivo **index.html** na raiz extraída.
-3. Crie grupos e personagens e clique em **Abrir ficha**.
+2. Para uma experiência mais confiável, execute um servidor HTTP estático
+   dentro da pasta extraída, por exemplo: \`python -m http.server 8000\`.
+3. Acesse **http://localhost:8000/**.
 
-Para maior confiabilidade do armazenamento, abra o site usando um servidor estático
-(por exemplo, dentro da pasta extraída, execute \`python -m http.server 8000\`
-e acesse http://localhost:8000/), ou publique os arquivos da raiz em uma
-hospedagem de sites estáticos, como Netlify.
+Você também pode publicar os arquivos da raiz numa hospedagem estática,
+como o Netlify, sem precisar de um servidor Node ou SQLite.
 
-## O que existe nesta versão
+## IMPORTANTE: persistência
 
-- Tela de biblioteca com grupos, busca e contagens.
-- Criar, renomear, excluir e abrir personagens.
-- Criar, renomear e excluir grupos (fichas de grupos excluídos vão para Sem grupo).
-- Mover personagens entre grupos.
-- Copiar personagem para qualquer grupo criando dados independentes.
-- **Ficha real do Nutripro II** com os atributos, inventário, slots,
-  cálculos, descrições, grimório, controles, modais e ordenação originais.
-- Salvamento automático isolado por personagem, através da lógica já presente na ficha.
-- Imagens de personagens, compactadas para armazenar localmente.
-- Exportação/importação de backup JSON da biblioteca completa.
-- Exportação de uma ficha dentro da própria ficha.
+Esta versão salva as fichas no **localStorage** do navegador.
+Não existe login ou sincronização entre dispositivos. Ao limpar os
+dados do navegador ou mudar a origem do site, as fichas não migram
+automaticamente. Faça backup JSON regularmente.
 
-## Arquivos principais
+## Verificação
 
-\`\`\`
-index.html            ← ABRA ESTE
-ficha_nutripro.html   ← ficha original completa
-library.css           ← estilo da biblioteca
-library.js            ← operações da biblioteca e grupos
-storage.js            ← salvamento independente do VTT
-sheet-adapter.js      ← retrato e backup de uma ficha
-README.md
-\`\`\`
-
-## Importante sobre os dados
-
-Esta versão usa armazenamento local do navegador (\`localStorage\`) **sem banco online**.
-Fichas criadas num dispositivo não aparecem automaticamente em outro.
-O local onde o site é aberto (domínio/origem) também importa para o armazenamento.
-Limpar dados do site pode apagar as fichas.
-
-**Faça backup JSON regularmente** para poder migrar ou recuperar os personagens.
-Para colaboração simultânea, login e armazenamento online, é necessária a adição
-de um backend. Nenhuma alteração foi feita no VTT original ou na branch \`main\`.
-
-## Nota sobre verificação
-
-Foram conferidos a presença dos arquivos, sintaxe JavaScript e operações de
-armazenamento/cópia/carregamento. Não foi realizado teste visual em um navegador.
+Foram verificadas a presença dos arquivos, a integridade básica da
+navegação, os pontos de integração da ficha e a sintaxe dos scripts.
+Ainda não foi possível executar teste visual completo num navegador.

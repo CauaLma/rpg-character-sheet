@@ -1,170 +1,197 @@
 (function(){
 'use strict';
 const S=window.NutriproStore;
-let filter='all',query='',transferMode='move',transferId='';
+if(!S){console.error('NutriproStore não carregou.');return;}
+let filter='all',query='',transferMode='move',transferId='',navigating=false;
 const $=id=>document.getElementById(id);
 const esc=str=>String(str??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-const initials=name=>String(name||'NP').trim().split(/\s+/).slice(0,2).map(s=>s.charAt(0)).join('').toUpperCase();
+const initials=name=>String(name||'K').trim().split(/\s+/).slice(0,2).map(p=>p.charAt(0)).join('').toUpperCase();
 const getGroup=(db,id)=>db.groups.find(g=>g.id===id);
 const groupName=(db,id)=>getGroup(db,id)?.name||'Sem grupo';
-const sheetUrl=c=>'ficha_nutripro.html?id='+encodeURIComponent(c.id)+'&name='+encodeURIComponent(c.name);
+const urlFor=c=>'ficha_nutripro.html?id='+encodeURIComponent(c.id)+'&name='+encodeURIComponent(c.name);
+const safePortrait=s=>{
+  const value=String(s||'').trim();
+  return /^(data:image\/(png|jpeg|webp|gif);base64,|https:\/\/)/i.test(value)?value:'';
+};
 let toastTimer;
-function toast(msg){
-  const t=$('toast');t.textContent=msg;t.classList.add('visible');
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('visible'),2800);
+function notify(message){
+ const el=$('toast');el.textContent=message;el.classList.add('visible');
+ clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('visible'),3100);
 }
-function allOptions(selected){
-  const db=S.read();
-  return '<option value="">Sem grupo</option>'+db.groups.map(g=>
-    '<option value="'+esc(g.id)+'" '+(selected===g.id?'selected':'')+'>'+esc(g.name)+'</option>').join('');
+function groupOptions(selected){
+ const db=S.read();
+ return '<option value=""'+(!selected?' selected':'')+'>Sem grupo</option>'+
+ db.groups.map(g=>'<option value="'+esc(g.id)+'"'+(selected===g.id?' selected':'')+'>'+esc(g.name)+'</option>').join('');
 }
-function groupFilter(db){
-  if(filter==='all')return db.characters;
-  if(filter==='ungrouped')return db.characters.filter(c=>!c.groupId);
-  return db.characters.filter(c=>c.groupId===filter);
+function byGroup(db){
+ return db.characters.filter(c=>filter==='all'||(filter==='ungrouped'?!c.groupId:c.groupId===filter));
+}
+function groupCard(g,current){
+ return '<div class="group-holder"><button type="button" class="group-chip'+(current===g.id?' active':'')+
+ '" data-filter="'+esc(g.id)+'">'+esc(g.name)+'</button>'+
+ '<details class="group-menu"><summary title="Opções do grupo '+esc(g.name)+'" aria-label="Opções do grupo '+esc(g.name)+'">⋮</summary>'+
+ '<div class="group-actions-menu"><button type="button" data-group-action="rename" data-group-id="'+esc(g.id)+'">✎ Renomear grupo</button>'+
+ '<button type="button" class="danger" data-group-action="delete" data-group-id="'+esc(g.id)+'">× Excluir grupo</button></div></details></div>';
+}
+function characterCard(c,db,index){
+ const portrait=safePortrait(c.portrait);
+ const portraitPart=portrait?'<img loading="lazy" alt="Retrato de '+esc(c.name)+'" src="'+esc(portrait)+'">':
+ '<div class="no-portrait"><span class="monogram">'+esc(initials(c.name))+'</span><span class="monogram-ornament">❧</span></div>';
+ return '<article class="character-card" data-id="'+esc(c.id)+'" style="animation-delay:'+Math.min(index*45,450)+'ms">'+
+ '<button class="character-image" type="button" data-action="open" aria-label="Abrir ficha de '+esc(c.name)+'">'+portraitPart+
+ '<span class="open-hint">✦ ABRIR FICHA ✦</span></button>'+
+ '<i class="frame-corner tl"></i><i class="frame-corner tr"></i>'+
+ '<i class="frame-corner bl"></i><i class="frame-corner br"></i>'+
+ '<details class="card-menu"><summary aria-label="Mais opções para '+esc(c.name)+'" title="Opções">⋯</summary>'+
+ '<div class="card-actions-menu">'+
+ '<button type="button" data-action="copy">✧ Fazer uma cópia</button>'+
+ '<button type="button" data-action="move">↗ Mover para grupo</button>'+
+ '<button type="button" data-action="rename">✎ Renomear</button>'+
+ '<button type="button" class="danger" data-action="delete">× Excluir ficha</button></div></details>'+
+ '<div class="card-info"><button type="button" class="card-name" data-action="open" title="Abrir ficha">'+esc(c.name)+'</button>'+
+ '<span class="card-group">'+esc(groupName(db,c.groupId))+'</span></div></article>';
 }
 function draw(){
-  const db=S.read(),currentGroup=getGroup(db,filter);
-  if(filter!=='all'&&filter!=='ungrouped'&&!currentGroup)filter='all';
-  const filterTitle=filter==='all'?'Todos os personagens':filter==='ungrouped'?'Sem grupo':currentGroup?.name||'Todos os personagens';
-  $('allCount').textContent=db.characters.length;
-  $('ungroupedCount').textContent=db.characters.filter(c=>!c.groupId).length;
-  $('statCharacters').textContent=db.characters.length;
-  $('statGroups').textContent=db.groups.length;
-  $('breadcrumbGroup').textContent=filterTitle.toUpperCase();
-  $('sectionTitle').textContent=filterTitle;
-  $('viewTitle').innerHTML=filter==='all'?'Seus personagens<span>.</span>':esc(filterTitle)+'<span>.</span>';
-  document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('selected',b.dataset.filter===filter));
-  $('groupList').innerHTML=db.groups.map(g=>{
-    const count=db.characters.filter(c=>c.groupId===g.id).length;
-    return '<div class="group-row"><button class="group-entry '+(filter===g.id?'selected':'')+'" data-filter="'+esc(g.id)+'">'+
-    '<span class="group-icon">▱</span><span>'+esc(g.name)+'</span><em>'+count+'</em></button>'+
-    '<button class="group-options" data-group-options="'+esc(g.id)+'" title="Renomear ou excluir grupo">⋮</button></div>';
-  }).join('')||'<p style="color:#6e8571;font-size:11px;padding-left:12px">Nenhum grupo criado</p>';
-  let arr=groupFilter(db).filter(c=>c.name.toLowerCase().includes(query.toLowerCase()));
-  arr.sort((a,b)=>String(b.updated_at||'').localeCompare(String(a.updated_at||'')));
-  $('statVisible').textContent=arr.length;
-  const grid=$('characterGrid');
-  grid.innerHTML=arr.map(c=>{
-    const portrait=c.portrait?'<img alt="" loading="lazy" src="'+esc(c.portrait)+'">':
-      '<div class="initials">'+esc(initials(c.name))+'</div>';
-    const level=c.dados&&c.dados.nivel ? ' • Nível '+esc(c.dados.nivel):'';
-    return '<article class="character-card" data-id="'+esc(c.id)+'">'+
-      '<div class="card-portrait">'+portrait+'<span class="tag">'+esc(groupName(db,c.groupId))+'</span></div>'+
-      '<div class="card-main"><h3 class="card-name">'+esc(c.name)+'</h3>'+
-      '<div class="card-meta">FICHA NUTRIPRO II'+level+'</div></div>'+
-      '<div class="card-actions">'+
-      '<button class="open" data-action="open" title="Abrir ficha">Abrir ficha ↗</button>'+
-      '<button data-action="copy" title="Copiar ficha">Copiar</button>'+
-      '<button data-action="move" title="Mover de grupo">Mover</button>'+
-      '<button data-action="rename" title="Renomear">✎</button>'+
-      '<button class="danger" data-action="delete" title="Excluir ficha">×</button>'+
-      '</div></article>';
-  }).join('');
-  $('emptyState').hidden=arr.length!==0;grid.hidden=arr.length===0;
-}
-function newCharacter(){
-  $('characterName').value='';
-  $('characterGroup').innerHTML=allOptions(filter==='all'||filter==='ungrouped'?'':filter);
-  $('characterDialog').showModal();$('characterName').focus();
+ const db=S.read();
+ if(filter!=='all'&&filter!=='ungrouped'&&!getGroup(db,filter))filter='all';
+ const title=filter==='all'?'Seus personagens':filter==='ungrouped'?'Sem grupo':getGroup(db,filter)?.name||'Personagens';
+ const list=$('groupList');
+ list.innerHTML=db.groups.map(g=>groupCard(g,filter)).join('');
+ document.querySelectorAll('.groups [data-filter]').forEach(btn=>btn.classList.toggle('active',btn.dataset.filter===filter));
+ $('allCount').textContent=db.characters.length;
+ $('sectionTitle').textContent=title;
+ let arr=byGroup(db).filter(c=>String(c.name||'').toLowerCase().includes(query.toLowerCase()));
+ arr.sort((a,b)=>String(b.updated_at||'').localeCompare(String(a.updated_at||'')));
+ $('visibleCount').textContent=arr.length;
+ const showCreate=!query;
+ let markup=showCreate?'<button type="button" class="create-card" id="newCharacterCard">'+
+ '<span class="create-symbol">+</span><strong>Novo personagem</strong><small>Uma aventura começa aqui</small></button>':'';
+ markup+=arr.map((c,i)=>characterCard(c,db,i)).join('');
+ $('characterGrid').innerHTML=markup;
+ $('emptyState').hidden=arr.length!==0 || showCreate;
 }
 function createGroup(){
-  const name=prompt('Nome do novo grupo:');
-  if(name===null)return;
-  if(!name.trim())return toast('Informe um nome de grupo.');
-  try{const g=S.createGroup(name);filter=g.id;draw();toast('Grupo criado.');}catch(e){toast(e.message);}
+ const name=prompt('Nome do novo grupo:');
+ if(name===null)return;
+ if(!name.trim())return notify('Informe um nome para o grupo.');
+ try{const g=S.createGroup(name);filter=g.id;draw();notify('Novo grupo criado.');}
+ catch(e){notify('Não foi possível criar o grupo: '+e.message);}
 }
-function groupActions(id){
-  const db=S.read(),g=getGroup(db,id);if(!g)return;
-  const action=prompt('Grupo: '+g.name+'\nDigite R para renomear ou E para excluir:','R');
-  if(action===null)return;
-  if(action.toUpperCase()==='R'){
-    const name=prompt('Novo nome do grupo:',g.name);
-    if(name&&name.trim()){S.renameGroup(id,name);draw();toast('Grupo renomeado.');}
-  } else if(action.toUpperCase()==='E'){
-    if(confirm('Excluir o grupo '+g.name+'?\nAs fichas NÃO serão apagadas: irão para Sem grupo.')){
-      S.deleteGroup(id);filter='ungrouped';draw();toast('Grupo excluído. As fichas foram preservadas.');
-    }
-  }
+function groupAction(action,id){
+ const g=getGroup(S.read(),id);
+ if(!g)return;
+ if(action==='rename'){
+   const name=prompt('Novo nome do grupo:',g.name);
+   if(name && name.trim()){S.renameGroup(id,name);draw();notify('Grupo renomeado.');}
+ }else if(action==='delete'){
+   if(confirm('Excluir o grupo "'+g.name+'"?\nOs personagens NÃO serão apagados. Eles ficarão em "Sem grupo".')){
+     S.deleteGroup(id);filter='ungrouped';draw();notify('Grupo excluído sem apagar personagens.');
+   }
+ }
+}
+function openCreate(){
+ $('characterName').value='';
+ $('characterGroup').innerHTML=groupOptions(filter==='all'||filter==='ungrouped'?null:filter);
+ $('characterDialog').showModal();
+ $('characterName').focus();
+}
+function openSheet(c){
+ if(navigating)return;
+ navigating=true;
+ $('transitionName').textContent=c.name;
+ const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(reduced){location.href=urlFor(c);return;}
+ document.body.classList.add('leaving');
+ setTimeout(()=>{location.href=urlFor(c);},520);
 }
 function openTransfer(id,mode){
-  const c=S.get(id);if(!c)return;
-  transferId=id;transferMode=mode;
-  $('transferKicker').textContent=mode==='copy'?'DUPLICAR REGISTRO':'ORGANIZAR REGISTRO';
-  $('transferTitle').textContent=mode==='copy'?'Copiar personagem':'Mover personagem';
-  $('transferInfo').textContent=c.name+' — '+(mode==='copy'?'a cópia terá dados independentes.':'todos os dados serão preservados.');
-  $('targetGroup').innerHTML=allOptions(c.groupId);
-  $('transferConfirm').textContent=mode==='copy'?'Criar cópia':'Mover ficha';
-  $('transferDialog').showModal();
+ const c=S.get(id);if(!c)return;
+ transferId=id;transferMode=mode;
+ $('transferKicker').textContent=mode==='copy'?'UMA NOVA VERSÃO':'MUDANÇA DE GRUPO';
+ $('transferTitle').textContent=mode==='copy'?'Copiar personagem':'Mover personagem';
+ $('transferInfo').textContent=mode==='copy'?'Uma nova ficha de '+c.name+' com os mesmos dados, mas independente da original.':
+ 'Escolha para onde '+c.name+' irá. Nenhuma informação será perdida.';
+ $('targetGroup').innerHTML=groupOptions(c.groupId);
+ $('transferConfirm').innerHTML=mode==='copy'?'Criar cópia <span>→</span>':'Mover ficha <span>→</span>';
+ $('transferDialog').showModal();
 }
-function performAction(action,id){
-  const c=S.get(id);if(!c)return toast('Personagem não encontrado.');
-  if(action==='open'){location.href=sheetUrl(c);return;}
-  if(action==='copy'||action==='move'){openTransfer(id,action);return;}
-  if(action==='rename'){
-    const name=prompt('Novo nome do personagem:',c.name);
-    if(name&&name.trim()){S.rename(id,name);draw();toast('Nome atualizado.');}
-    return;
+function cardAction(action,id){
+ const c=S.get(id);if(!c)return notify('Personagem não encontrado.');
+ if(action==='open'){openSheet(c);return;}
+ if(action==='copy'||action==='move'){openTransfer(id,action);return;}
+ if(action==='rename'){
+  const name=prompt('Renomear personagem:',c.name);
+  if(name && name.trim()){S.rename(id,name);draw();notify('Nome atualizado.');}
+  return;
+ }
+ if(action==='delete'){
+  if(confirm('Excluir a ficha de '+c.name+'?\nEsta ação não pode ser desfeita sem um backup.')){
+   S.remove(id);draw();notify('Ficha excluída.');
   }
-  if(action==='delete'&&confirm('Excluir definitivamente a ficha de '+c.name+'?\nEssa ação só pode ser desfeita com um backup.')){
-    S.remove(id);draw();toast('Ficha excluída.');
-  }
+ }
 }
-function downloadBackup(){
-  const blob=new Blob([JSON.stringify(S.read(),null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='Nutripro-Fichas-backup-'+new Date().toISOString().slice(0,10)+'.json';
-  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);
-  toast('Backup exportado.');
+function backup(){
+ const json=JSON.stringify(S.read(),null,2);
+ const blob=new Blob([json],{type:'application/json'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;
+ a.download='Fichas-Knave-backup-'+new Date().toISOString().slice(0,10)+'.json';
+ document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),2000);
+ notify('Backup das fichas exportado.');
 }
-async function restoreBackup(file){
-  if(!file)return;
-  if(!confirm('Importar este backup vai SUBSTITUIR a biblioteca atual. Deseja continuar?'))return;
-  try{
-    const contents=await file.text();
-    const data=JSON.parse(contents);
-    S.importDB(data);filter='all';query='';$('searchInput').value='';
-    draw();toast('Backup importado com sucesso.');
-  }catch(e){alert('Não foi possível importar o backup: '+e.message);}
+async function restore(file){
+ if(!file)return;
+ if(!confirm('O backup substituirá TODAS as fichas e grupos deste navegador. Continuar?'))return;
+ try{
+  S.importDB(JSON.parse(await file.text()));
+  filter='all';query='';$('searchInput').value='';draw();notify('Backup importado com sucesso.');
+ }catch(err){alert('Não foi possível importar o backup: '+err.message);}
 }
 $('newGroupBtn').addEventListener('click',createGroup);
-$('newCharacterBtn').addEventListener('click',newCharacter);
-$('emptyCreateBtn').addEventListener('click',newCharacter);
-$('groupList').addEventListener('click',e=>{
-  const b=e.target.closest('[data-group-options]');if(b){groupActions(b.dataset.groupOptions);return;}
-  const f=e.target.closest('[data-filter]');if(f){filter=f.dataset.filter;draw();}
+$('groups')?.addEventListener?.('click',()=>{}); // Elemento de navegação acessível via delegação abaixo
+document.querySelector('.groups').addEventListener('click',e=>{
+ const option=e.target.closest('[data-group-action]');
+ if(option){e.stopPropagation();groupAction(option.dataset.groupAction,option.dataset.groupId);return;}
+ const chip=e.target.closest('[data-filter]');
+ if(chip){filter=chip.dataset.filter;draw();}
 });
-document.querySelectorAll('.sidebar > [data-filter]').forEach(b=>b.addEventListener('click',()=>{
-  filter=b.dataset.filter;draw();
-}));
 $('characterGrid').addEventListener('click',e=>{
-  const b=e.target.closest('button[data-action]');if(!b)return;
-  const card=b.closest('[data-id]');if(card)performAction(b.dataset.action,card.dataset.id);
+ const create=e.target.closest('#newCharacterCard');if(create){openCreate();return;}
+ const btn=e.target.closest('button[data-action]');if(!btn)return;
+ const card=btn.closest('[data-id]');if(card)cardAction(btn.dataset.action,card.dataset.id);
 });
+$('emptyCreateBtn').addEventListener('click',openCreate);
 $('searchInput').addEventListener('input',e=>{query=e.target.value.trim();draw();});
 $('createForm').addEventListener('submit',e=>{
-  e.preventDefault();
-  const name=$('characterName').value.trim();if(!name)return;
-  try{
-    const c=S.create(name,$('characterGroup').value||null);
-    $('characterDialog').close();location.href=sheetUrl(c);
-  }catch(err){alert('Não foi possível criar: '+err.message);}
+ e.preventDefault();
+ const name=$('characterName').value.trim();if(!name)return;
+ try{
+  const c=S.create(name,$('characterGroup').value||null);
+  $('characterDialog').close();openSheet(c);
+ }catch(err){notify('Não foi possível criar a ficha: '+err.message);}
 });
 $('transferForm').addEventListener('submit',e=>{
-  e.preventDefault();
-  const target=$('targetGroup').value||null;
-  try{
-    if(transferMode==='copy')S.duplicate(transferId,target);
-    else S.move(transferId,target);
-    $('transferDialog').close();draw();toast(transferMode==='copy'?'Cópia criada.':'Personagem movido.');
-  }catch(err){alert('Falha ao organizar personagem: '+err.message);}
+ e.preventDefault();
+ try{
+  const group=$('targetGroup').value||null;
+  if(transferMode==='copy'){S.duplicate(transferId,group);notify('Cópia independente criada.');}
+  else{S.move(transferId,group);notify('Personagem movido para outro grupo.');}
+  $('transferDialog').close();draw();
+ }catch(err){alert('Erro ao organizar ficha: '+err.message);}
 });
-document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>
-  $(b.dataset.close)?.close()));
-$('backupBtn').addEventListener('click',downloadBackup);
+document.querySelectorAll('[data-close]').forEach(btn=>btn.addEventListener('click',()=>{
+ $(btn.dataset.close)?.close();
+}));
+$('backupBtn').addEventListener('click',backup);
 $('restoreBtn').addEventListener('click',()=>$('backupInput').click());
-$('backupInput').addEventListener('change',async e=>{await restoreBackup(e.target.files[0]);e.target.value='';});
+$('backupInput').addEventListener('change',async e=>{await restore(e.target.files[0]);e.target.value='';});
 window.addEventListener('storage',e=>{if(e.key===S.KEY)draw();});
 window.addEventListener('nutripro:changed',draw);
+window.addEventListener('pageshow',()=>{document.body.classList.remove('leaving');navigating=false;});
+document.addEventListener('click',e=>{
+ if(e.target.closest('details'))return;
+ document.querySelectorAll('details[open]').forEach(d=>{d.open=false;});
+});
 draw();
 })();

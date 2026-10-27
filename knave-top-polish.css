@@ -1,0 +1,391 @@
+/* FICHA KNAVE / 201X — acabamento da area superior.
+   Mantem a distribuicao existente: retrato à esquerda, identidade à direita,
+   vitais em linha, capacidades e residuo lado a lado.
+   Somente estilos; nenhum campo, atributo, valor ou calculo e alterado. */
+
+/* Superficies planas sem sombras que invadem a secao seguinte. */
+.np-hero{
+  box-shadow:0 4px 0 rgba(20,20,20,.12)!important;
+  border:3px solid #171717!important;
+  background:#f7f6f0!important;
+}
+.np-hero:after{display:none!important}
+.np-portrait-wrap{min-width:0!important;}
+.np-identity{
+  min-width:0!important;
+  padding:20px 24px!important;
+  gap:0!important;
+}
+.np-eyebrow{
+  display:block!important;
+  margin:0 0 9px!important;
+  color:#bc060e!important;
+  font:800 12px/1.25 'Barlow Condensed',Arial,sans-serif!important;
+  letter-spacing:.1em!important;
+}
+.np-name{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:68px!important;
+  margin:0 0 15px!important;
+  padding:5px 0 9px!important;
+  border:0!important;
+  border-bottom:2px solid #171717!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#ce060a!important;
+  font:normal clamp(33px,4vw,55px)/1.12 'Permanent Marker',Impact,sans-serif!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+.np-name:focus{outline:none!important;border-bottom-color:#ce060a!important;}
+.np-identity-grid{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:15px!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+}
+.np-identity-grid label{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:5px!important;
+  min-width:0!important;
+  margin:0!important;
+}
+.np-identity-grid label span{
+  display:block!important;
+  margin:0!important;
+  color:#222!important;
+  font:800 11px/1.25 'Barlow Condensed',Arial,sans-serif!important;
+  letter-spacing:.09em!important;
+}
+.np-identity-grid input{
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  height:42px!important;
+  padding:7px 10px!important;
+  margin:0!important;
+  color:#222!important;
+  -webkit-text-fill-color:#222!important;
+  background:#fffdfa!important;
+  border:2px solid #333!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  font:600 18px/1.2 'Barlow Condensed',Arial,sans-serif!important;
+}
+.np-identity-grid input::placeholder{
+  color:#69706b!important;
+  -webkit-text-fill-color:#69706b!important;
+  opacity:1!important;
+}
+.np-identity-grid input:focus{outline:2px solid #c5070e!important;outline-offset:0!important;}
+
+/* Barra de vida: cinco celulas completas, sem cortar a etiqueta nem XP. */
+.np-vital-strip{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+  overflow:visible!important;
+  margin:17px 0 0!important;
+  padding:14px 0 0!important;
+  border:0!important;
+  border-top:2px solid #171717!important;
+  background:transparent!important;
+}
+.np-vital,
+.np-vital:first-child,
+.np-vital:last-child{
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-rows:18px 30px!important;
+  align-items:center!important;
+  position:relative!important;
+  flex:0 0 91px!important;
+  width:91px!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:69px!important;
+  margin:0!important;
+  padding:8px 9px!important;
+  border:2px solid #161616!important;
+  border-radius:0!important;
+  background:#f0eee8!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+.np-vital.hp{
+  flex-basis:139px!important;
+  width:139px!important;
+  border-left:6px solid #cd080e!important;
+  padding-left:10px!important;
+}
+.np-vital.xp{
+  flex-basis:175px!important;
+  width:175px!important;
+}
+.np-vital>span{
+  grid-row:1!important;
+  grid-column:1 / -1!important;
+  align-self:start!important;
+  display:block!important;
+  margin:0!important;
+  color:#202020!important;
+  white-space:nowrap!important;
+  font:800 11px/1 'Barlow Condensed',Arial,sans-serif!important;
+  letter-spacing:.09em!important;
+}
+.np-vital>input{
+  grid-row:2!important;
+  grid-column:1!important;
+  align-self:center!important;
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  height:30px!important;
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  color:#141414!important;
+  -webkit-text-fill-color:#141414!important;
+  box-shadow:none!important;
+  font:800 24px/1.2 'Barlow Condensed',Arial,sans-serif!important;
+  appearance:textfield!important;
+}
+.np-vital>input:focus{outline:0!important;border-bottom:2px solid #c80b10!important;}
+.np-vital small{
+  grid-row:2!important;
+  grid-column:2!important;
+  display:flex!important;
+  flex-flow:row nowrap!important;
+  align-items:baseline!important;
+  justify-content:flex-end!important;
+  gap:3px!important;
+  min-width:0!important;
+  margin:0!important;
+  color:#404540!important;
+  white-space:nowrap!important;
+  font:800 11px/1 'Barlow Condensed',Arial,sans-serif!important;
+  letter-spacing:0!important;
+}
+.np-vital small input{
+  width:35px!important;
+  min-width:0!important;
+  height:23px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#171717!important;
+  -webkit-text-fill-color:#171717!important;
+  text-align:left!important;
+  font:800 14px/1 'Barlow Condensed',Arial,sans-serif!important;
+}
+.np-vital.hp>input{width:58px!important;}
+.np-vital.hp small input{width:39px!important;}
+.np-vital.xp>input{width:54px!important;}
+.np-vital.xp small input{width:57px!important;font-size:13px!important;}
+.np-vital b{
+  grid-column:2!important;
+  grid-row:2!important;
+  justify-self:end!important;
+  position:static!important;
+  transform:none!important;
+  margin:0 0 0 4px!important;
+  color:#ba0b10!important;
+  font:800 12px/1 'Barlow Condensed',sans-serif!important;
+}
+
+/* Titulos de capacidades e residuos: numeros e nomes nao colidem. */
+.np-dashboard{
+  margin:16px 0 22px!important;
+}
+.np-dashboard .np-module{
+  min-width:0!important;
+  padding:14px!important;
+  border:3px solid #171717!important;
+  background:#f8f7f2!important;
+  box-shadow:3px 3px 0 rgba(20,20,20,.10)!important;
+}
+.np-dashboard .np-module-head{
+  display:flex!important;
+  align-items:center!important;
+  gap:12px!important;
+  min-height:42px!important;
+  margin:0 0 12px!important;
+  padding:0 0 9px!important;
+  border:0!important;
+  border-bottom:2px solid #171717!important;
+}
+.np-dashboard .np-module-head>span{
+  display:block!important;
+  flex:0 0 auto!important;
+  min-width:30px!important;
+  width:auto!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  color:#c3080e!important;
+  background:transparent!important;
+  border:0!important;
+  font:normal 23px/1.1 'Permanent Marker',Impact,sans-serif!important;
+  letter-spacing:-.025em!important;
+}
+.np-dashboard .np-module-head>div{display:block!important;min-width:0!important;flex:1 1 auto!important;}
+.np-dashboard .np-module-head b{
+  display:block!important;
+  margin:0!important;
+  color:#191919!important;
+  font:normal clamp(17px,1.7vw,22px)/1.18 'Permanent Marker',Impact,sans-serif!important;
+  white-space:normal!important;
+  letter-spacing:0!important;
+}
+.np-dashboard .np-module-head small{display:none!important;}
+
+/* Atributos: caixas completas, labels legiveis, numeros no centro. */
+.np-attr-grid{gap:7px!important;}
+.np-attr-grid label{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:space-between!important;
+  min-width:0!important;
+  min-height:84px!important;
+  box-sizing:border-box!important;
+  padding:8px 5px!important;
+  border:2px solid #171717!important;
+  border-radius:0!important;
+  background:#e6e3dc!important;
+}
+.np-attr-grid label:first-child{padding-left:5px!important;}
+.np-attr-grid label:last-child{border-right:2px solid #171717!important;}
+.np-attr-grid label span{
+  display:block!important;
+  margin:0!important;
+  color:#202020!important;
+  font:800 12px/1.1 'Barlow Condensed',sans-serif!important;
+  letter-spacing:.08em!important;
+  text-align:center!important;
+}
+.np-attr-grid label input{
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  height:42px!important;
+  margin:0!important;
+  padding:0!important;
+  color:#ba070d!important;
+  -webkit-text-fill-color:#ba070d!important;
+  border:0!important;
+  background:transparent!important;
+  text-align:center!important;
+  font:normal 29px/1 'Permanent Marker',Impact,sans-serif!important;
+}
+.np-attr-grid label input::placeholder{color:#8a8c88!important;}
+.np-attr-grid label input:focus{outline:0!important;box-shadow:inset 0 -2px #cb0710!important;}
+
+/* Residuo — manter as duas caixas existentes, mas alinhar titulo/valor/max. */
+.np-resource-grid{gap:10px!important;}
+.np-resource-grid label{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-rows:21px 39px!important;
+  align-items:center!important;
+  min-width:0!important;
+  min-height:84px!important;
+  box-sizing:border-box!important;
+  padding:8px 10px!important;
+  border:2px solid #171717!important;
+  border-radius:0!important;
+  background:#e6e3dc!important;
+}
+.np-resource-grid label>span{
+  display:block!important;
+  grid-column:1/-1!important;
+  grid-row:1!important;
+  align-self:start!important;
+  color:#202020!important;
+  font:800 12px/1.1 'Barlow Condensed',sans-serif!important;
+  letter-spacing:.07em!important;
+}
+.np-resource-grid label>input{
+  grid-column:1!important;
+  grid-row:2!important;
+  width:100%!important;
+  min-width:0!important;
+  height:38px!important;
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  color:#ba070d!important;
+  -webkit-text-fill-color:#ba070d!important;
+  text-align:left!important;
+  font:normal 29px/1 'Permanent Marker',Impact,sans-serif!important;
+}
+.np-resource-grid label small{
+  display:flex!important;
+  grid-column:2!important;
+  grid-row:2!important;
+  align-items:baseline!important;
+  gap:3px!important;
+  float:none!important;
+  margin:0!important;
+  color:#323532!important;
+  white-space:nowrap!important;
+  font:800 11px/1.1 'Barlow Condensed',sans-serif!important;
+}
+.np-resource-grid label small input{
+  display:inline-block!important;
+  width:33px!important;
+  min-width:0!important;
+  height:22px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#161616!important;
+  -webkit-text-fill-color:#161616!important;
+  text-align:right!important;
+  font:800 14px/1 'Barlow Condensed',sans-serif!important;
+}
+.np-resource-grid input:focus{outline:0!important;border-bottom:2px solid #cd080e!important;}
+.np-anomaly .np-grimoire-link{
+  display:block!important;
+  min-height:38px!important;
+  padding:9px 12px!important;
+  margin-top:12px!important;
+  background:#ce070c!important;
+  border:2px solid #171717!important;
+  color:#fff!important;
+  font:800 14px/1.2 'Barlow Condensed',sans-serif!important;
+  letter-spacing:.06em!important;
+}
+
+/* Regras leves para telas menores, mantendo os mesmos blocos. */
+@media(max-width:900px){
+  .np-identity{padding:16px!important}
+  .np-vital-strip{gap:6px!important}
+  .np-vital,.np-vital:first-child,.np-vital:last-child{flex-basis:82px!important;width:82px!important}
+  .np-vital.hp{flex-basis:125px!important;width:125px!important}
+  .np-vital.xp{flex-basis:165px!important;width:165px!important}
+  .np-dashboard .np-module{padding:10px!important}
+  .np-dashboard .np-module-head b{font-size:17px!important}
+}
+@media(max-width:640px){
+  .np-identity-grid{gap:9px!important}
+  .np-name{min-height:54px!important;font-size:33px!important}
+  .np-vital-strip{gap:6px!important}
+  .np-dashboard .np-module-head>span{font-size:20px!important}
+  .np-dashboard .np-module-head b{font-size:17px!important}
+}

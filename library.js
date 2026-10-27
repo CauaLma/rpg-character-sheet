@@ -48,7 +48,7 @@ function characterCard(c,db,index){
    '" aria-pressed="false" title="'+(stand?'Passar o mouse ou clicar para ver o Stand':'Enviar imagem do Stand')+'">'+label+'</button>'+
    '<details class="card-menu"><summary title="Opções de '+esc(c.name)+'" aria-label="Opções de '+esc(c.name)+'">⋯</summary>'+
    '<div class="card-actions-menu">'+
-   '<button type="button" data-action="upload-portrait">↑ Foto do personagem</button>'+
+   '<button type="button" data-action="upload-portrait">↑ Foto do personagem</button>'+   (portrait?'<button type="button" data-action="remove-background">✂ Remover fundo</button>':'')+
    '<button type="button" data-action="upload-stand">✕ '+(stand?'Trocar imagem do Stand':'Adicionar Stand')+'</button>'+
    (stand?'<button type="button" data-action="remove-stand">− Remover Stand</button>':'')+
    '<button type="button" data-action="copy">⧉ Fazer cópia</button>'+
@@ -77,6 +77,17 @@ function draw(){
  '<span class="create-symbol">+</span><strong>Novo personagem</strong><small>Uma aventura começa aqui</small></button>';
  $('characterGrid').innerHTML=markup;
  $('emptyState').hidden=arr.length!==0 || showCreate;
+ // Usa a imagem recortada visualmente mesmo em personagens já criados,
+ // sem sobrescrever a arte original até que o usuário escolha salvar.
+ if(window.KnaveBackground)document.querySelectorAll('.fighter-main').forEach(el=>{
+   const card=el.closest('.character-card');
+   const c=card&&S.get(card.dataset.id);
+   if(!c?.portrait)return;
+   const original=c.portrait;
+   window.KnaveBackground.clean(original).then(preview=>{
+     if(el.isConnected&&S.get(c.id)?.portrait===original&&preview!==original)el.src=preview;
+   });
+ });
 }
 function createGroup(){
  const name=prompt('Nome do novo grupo:');
@@ -145,21 +156,35 @@ artInput.addEventListener('change',()=>{
    const ctx=canvas.getContext('2d');
    ctx.drawImage(img,0,0,canvas.width,canvas.height);
    // WebP preserva transparencia de PNG, necessario para personagens e stands.
-   const data=canvas.toDataURL('image/webp',.77);
-   try{
-    if(target.kind==='stand')S.setStandPortrait(target.id,data);
-    else S.setPortrait(target.id,data);
-    draw();notify(target.kind==='stand'?'Stand salvo! Passe o mouse na aba vermelha.':'Arte de corpo inteiro salva.');
-   }catch(err){
-    console.error(err);
-    notify('Espaço do navegador insuficiente. Exporte backup ou use imagem menor.');
-   }
+   const data=canvas.toDataURL('image/webp',.84);
+   const cleaned=target.kind==='portrait'&&window.KnaveBackground?
+       window.KnaveBackground.clean(data):Promise.resolve(data);
+   cleaned.then(output=>{
+     try{
+       if(target.kind==='stand')S.setStandPortrait(target.id,output);
+       else S.setPortrait(target.id,output);
+       draw();
+       notify(target.kind==='stand'?'Stand salvo! Passe o mouse na aba vermelha.':'Personagem centralizado e fundo uniforme removido.');
+     }catch(err){
+       console.error(err);
+       notify('Espaço do navegador insuficiente. Exporte backup ou use imagem menor.');
+     }
+   });
  };
  img.onerror=()=>{URL.revokeObjectURL(url);notify('Não foi possível abrir a imagem.');};
  img.src=url;
 });
-function cardAction(action,id){
+async function cardAction(action,id){
  const c=S.get(id);if(!c)return notify('Personagem não encontrado.');
+ if(action==='remove-background'){
+   if(!window.KnaveBackground||!c.portrait)return notify('Não há imagem para recortar.');
+   notify('Removendo fundo da imagem...');
+   const cleaned=await window.KnaveBackground.clean(c.portrait,{force:true});
+   if(cleaned===c.portrait)return notify('Fundo não uniforme: a foto original foi preservada.');
+   try{S.setPortrait(id,cleaned);draw();notify('Fundo removido da imagem de '+c.name+'.');}
+   catch(err){notify('Não foi possível salvar a foto sem fundo.');}
+   return;
+ }
  if(action==='open'){openSheet(c);return;}
  if(action==='upload-portrait'){requestArt(id,'portrait');return;}
  if(action==='upload-stand'){requestArt(id,'stand');return;}

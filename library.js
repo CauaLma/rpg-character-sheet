@@ -73,7 +73,7 @@ function draw(){
  const showCreate=!query;
  let markup=arr.map((c,i)=>characterCard(c,db,i)).join('');
  if(showCreate && arr.length<7)markup+='<button type="button" class="create-card" id="newCharacterCard">'+
- '<span class="create-symbol">+</span><strong>Novo personagem</strong><small>Uma aventura começa aqui</small></button>';
+ '<span class="create-symbol">+</span><strong>Novo personagem</strong><small>CRIAR FICHA</small></button>';
  $('characterGrid').innerHTML=markup;
  $('emptyState').hidden=arr.length!==0 || showCreate;
 
@@ -117,7 +117,7 @@ function openTransfer(id,mode){
  transferId=id;transferMode=mode;
  $('transferKicker').textContent=mode==='copy'?'UMA NOVA VERSÃO':'MUDANÇA DE GRUPO';
  $('transferTitle').textContent=mode==='copy'?'Copiar personagem':'Mover personagem';
- $('transferInfo').textContent=mode==='copy'?'Uma nova ficha de '+c.name+' com os mesmos dados, mas independente da original.':
+ $('transferInfo').textContent=mode==='copy'?'Uma cópia de '+c.name+' com os mesmos dados, mas independente da original.':
  'Escolha para onde '+c.name+' irá. Nenhuma informação será perdida.';
  $('targetGroup').innerHTML=groupOptions(c.groupId);
  $('transferConfirm').innerHTML=mode==='copy'?'Criar cópia <span>→</span>':'Mover ficha <span>→</span>';
